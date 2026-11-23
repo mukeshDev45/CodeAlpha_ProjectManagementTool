@@ -1,0 +1,109 @@
+/* ==========================================================================
+   RESPONSIVE DESIGN & MOBILE ADAPTATIONS
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .dashboard-split {
+    grid-template-columns: 1fr;
+  }
+
+  .task-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --navbar-height: 56px;
+  }
+
+  .app-container {
+    position: relative;
+  }
+
+  /* Off-canvas sidebar */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: -280px;
+    width: 280px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .sidebar.open {
+    transform: translateX(280px);
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    z-index: 45;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+  }
+
+  .sidebar-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .menu-toggle-btn {
+    display: inline-flex;
+  }
+
+  .top-navbar {
+    padding: 0 16px;
+  }
+
+  .content-area {
+    padding: 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kanban-columns-wrapper {
+    grid-template-columns: repeat(4, 260px);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .kanban-column {
+    scroll-snap-align: start;
+  }
+
+  /* Show quick move dropdown on mobile so users don't have to drag on small touch screens */
+  .task-move-select {
+    display: block;
+  }
+
+  .modal-container {
+    max-width: 95vw;
+    margin: 10px;
+  }
+
+  .notif-dropdown {
+    right: 10px;
+    width: calc(100vw - 20px);
+  }
+
+  .board-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .board-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

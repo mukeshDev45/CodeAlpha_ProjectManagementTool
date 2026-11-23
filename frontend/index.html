@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/">
+  <title>ProjectFlow — Modern Project Management & Kanban Tool</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/kanban.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- =========================================================================
+       1. AUTHENTICATION VIEW (Sign In / Register)
+       ========================================================================= -->
+  <div id="authView" class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-brand">
+          <svg viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="8" fill="#4F46E5"/>
+            <path d="M8 10C8 8.89543 8.89543 8 10 8H14C15.1046 8 16 8.89543 16 10V22C16 23.1046 15.1046 24 14 24H10C8.89543 24 8 23.1046 8 22V10Z" fill="white" fill-opacity="0.9"/>
+            <path d="M18 10C18 8.89543 18.8954 8 20 8H22C23.1046 8 24 8.89543 24 10V16C24 17.1046 23.1046 18 22 18H20C18.8954 18 18 17.1046 18 16V10Z" fill="white" fill-opacity="0.6"/>
+          </svg>
+          <h1>ProjectFlow</h1>
+        </div>
+        <p class="auth-tagline">CodeAlpha Full Stack Internship — Task 3</p>
+        <div class="auth-tabs">
+          <button id="tabBtnLogin" class="auth-tab-btn active" onclick="switchAuthTab('login')">Sign In</button>
+          <button id="tabBtnRegister" class="auth-tab-btn" onclick="switchAuthTab('register')">Create Account</button>
+        </div>
+      </div>
+
+      <div class="auth-body">
+        <!-- LOGIN FORM -->
+        <form id="loginForm" class="auth-form active" onsubmit="handleLoginSubmit(event)">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="loginEmail" class="form-control" placeholder="name@company.com" required value="mukesh@projectflow.dev">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required value="password123">
+          </div>
+          <div style="text-align: right; margin-top: -8px; margin-bottom: 14px;">
+            <button type="button" class="btn-text" style="font-size: 12px; color: var(--primary);" onclick="openForgotPasswordModal()">Forgot password?</button>
+          </div>
+          <button type="submit" id="btnLoginSubmit" class="btn btn-primary" style="width: 100%;">
+            Sign In to Workspace
+          </button>
+        </form>
+
+        <!-- REGISTER FORM -->
+        <form id="registerForm" class="auth-form" onsubmit="handleRegisterSubmit(event)">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="regName" class="form-control" placeholder="e.g. Jordan Lee" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="regEmail" class="form-control" placeholder="jordan@company.com" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Password (min 6)</label>
+              <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required minlength="6">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Role</label>
+              <select id="regRole" class="form-control">
+                <option value="developer">Developer</option>
+                <option value="designer">Designer</option>
+                <option value="manager">Manager</option>
+                <option value="member">Member</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Job Title</label>
+            <input type="text" id="regJobTitle" class="form-control" placeholder="e.g. Frontend Engineer">
+          </div>
+          <button type="submit" id="btnRegisterSubmit" class="btn btn-primary" style="width: 100%;">
+            Create Free Account
+          </button>
+        </form>
+
+        <!-- ONE-CLICK DEMO ACCOUNTS -->
+        <div class="demo-login-box">
+          <div class="demo-title">⚡ Instant Demo Logins (One-Click)</div>
+          <div class="demo-buttons">
+            <button type="button" class="btn-demo" onclick="quickDemoLogin('mukesh@projectflow.dev')">
+              👨‍💼 Mukesh (Lead)
+            </button>
+            <button type="button" class="btn-demo" onclick="quickDemoLogin('sarah@projectflow.dev')">
+              👩‍💻 Sarah (Frontend)
+            </button>
+            <button type="button" class="btn-demo" onclick="quickDemoLogin('marcus@projectflow.dev')">
+              🧑‍💻 Marcus (Backend)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       2. MAIN APPLICATION SHELL (Visible when authenticated)
+       ========================================================================= -->
+  <div id="appShell" class="app-container" style="display: none;">
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <a href="#" class="sidebar-logo" onclick="navigateTo('dashboard'); return false;">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="8" fill="#4F46E5"/>
+            <path d="M8 10C8 8.89543 8.89543 8 10 8H14C15.1046 8 16 8.89543 16 10V22C16 23.1046 15.1046 24 14 24H10C8.89543 24 8 23.1046 8 22V10Z" fill="white" fill-opacity="0.9"/>
+            <path d="M18 10C18 8.89543 18.8954 8 20 8H22C23.1046 8 24 8.89543 24 10V16C24 17.1046 23.1046 18 22 18H20C18.8954 18 18 17.1046 18 16V10Z" fill="white" fill-opacity="0.6"/>
+          </svg>
+          <span>ProjectFlow</span>
+        </a>
+        <span class="sidebar-badge">v1.0</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Menu</div>
+        <button class="nav-item active" data-view="dashboard" onclick="navigateTo('dashboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-view="projects" onclick="navigateTo('projects')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          <span>My Projects</span>
+          <span id="sidebarProjectCount" class="nav-counter">0</span>
+        </button>
+        <button id="sidebarBoardBtn" class="nav-item" data-view="board" onclick="navigateTo('board')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+          <span>Kanban Board</span>
+        </button>
+        <button class="nav-item" data-view="mytasks" onclick="navigateTo('mytasks')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+          <span>My Tasks</span>
+          <span id="sidebarMyTasksCount" class="nav-counter">0</span>
+        </button>
+        <button class="nav-item" data-view="team" onclick="navigateTo('team')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span>Team Members</span>
+        </button>
+        <button class="nav-item" data-view="calendar" onclick="navigateTo('calendar')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span>Calendar</span>
+        </button>
+        <button class="nav-item" data-view="analytics" onclick="navigateTo('analytics')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <span>Analytics</span>
+        </button>
+        <button class="nav-item" data-view="audit" onclick="navigateTo('audit')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>Audit Logs</span>
+        </button>
+        <button class="nav-item" data-view="notifications" onclick="navigateTo('notifications')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <span>Notifications</span>
+          <span id="sidebarNotifBadge" class="nav-counter" style="display:none; background: var(--danger);">0</span>
+        </button>
+        <button class="nav-item" data-view="profile" onclick="navigateTo('profile')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>Profile & Settings</span>
+        </button>
+        <button class="nav-item" onclick="handleLogout()" style="color: #f87171;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Sign Out</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-mini-profile" onclick="navigateTo('profile')">
+          <img id="sidebarUserAvatar" class="avatar" src="" alt="Avatar">
+          <div class="user-mini-info">
+            <div id="sidebarUserName" class="user-mini-name">User Name</div>
+            <div id="sidebarUserRole" class="user-mini-role">Software Engineer</div>
+          </div>
+        </div>
+        <button class="btn-sidebar-logout" title="Sign Out" onclick="handleLogout()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <div class="main-wrapper">
+      <!-- TOP NAVBAR -->
+      <header class="top-navbar">
+        <div class="navbar-left">
+          <button class="menu-toggle-btn" onclick="toggleSidebar(true)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          <div class="page-title-box">
+            <h2 id="navbarPageTitle">Dashboard</h2>
+            <span id="navbarPageBreadcrumb" class="page-breadcrumb">Workspace &bull; Overview</span>
+          </div>
+
+          <!-- Global Search Bar -->
+          <div class="global-search-container">
+            <div class="global-search-input-wrap">
+              <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="globalSearchInput" class="global-search-input" placeholder="Search projects, tasks, members... (Ctrl+K)" oninput="handleGlobalSearchInput(event)" onfocus="handleGlobalSearchFocus()" autocomplete="off">
+              <span class="search-shortcut">Ctrl K</span>
+            </div>
+            <div id="globalSearchResults" class="global-search-dropdown" style="display: none;">
+              <!-- Populated via search.js -->
+            </div>
+          </div>
+        </div>
+
+        <div class="navbar-right">
+          <!-- Theme Toggle Button -->
+          <button id="themeToggleBtn" class="theme-toggle-btn" title="Toggle Light / Dark Mode" onclick="toggleTheme()">
+            <span id="themeToggleIcon">🌙</span>
+          </button>
+
+          <!-- Socket Status -->
+          <div class="live-pill" title="Real-time Socket.IO synchronization active">
+            <span class="live-dot"></span>
+            <span>Live Sync</span>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <button class="btn btn-secondary btn-sm" onclick="openCreateProjectModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>New Project</span>
+          </button>
+
+          <button class="btn btn-primary btn-sm" onclick="openQuickCreateTaskModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>New Task</span>
+          </button>
+
+          <!-- Notification Bell -->
+          <button id="notifBellBtn" class="notif-bell-btn" onclick="toggleNotifDropdown()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span id="navNotifBadge" class="notif-badge" style="display: none;">0</span>
+          </button>
+
+          <!-- Notification Dropdown -->
+          <div id="notifDropdown" class="notif-dropdown">
+            <div class="notif-dropdown-header">
+              <h4>Notifications</h4>
+              <button class="btn-text" onclick="markAllNotificationsRead()">Mark all read</button>
+            </div>
+            <div id="notifDropdownList" class="notif-dropdown-list">
+              <!-- Rendered via JS -->
+            </div>
+            <div style="padding: 10px; text-align: center; border-top: 1px solid var(--border-light);">
+              <button class="btn-text" onclick="navigateTo('notifications'); toggleNotifDropdown(false);">View all notifications &rarr;</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT AREA -->
+      <main class="content-area">
+
+        <!-- VIEW 1: DASHBOARD -->
+        <section id="view-dashboard" class="page-view active">
+          <!-- Welcome Bar -->
+          <div style="margin-bottom: 24px;">
+            <h1 id="dashWelcomeHeading" style="font-size: 24px; font-weight: 700; color: var(--text-main);">Welcome to ProjectFlow!</h1>
+            <p style="color: var(--text-muted); font-size: 14px;">Here is the status of your collaborative projects and team tasks.</p>
+          </div>
+
+          <!-- Top Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-info">
+                <h5>Total Projects</h5>
+                <div id="statTotalProjects" class="stat-value">0</div>
+                <div class="stat-subtitle">Active workspaces</div>
+              </div>
+              <div class="stat-icon primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <h5>Total Tasks</h5>
+                <div id="statTotalTasks" class="stat-value">0</div>
+                <div class="stat-subtitle">Across all boards</div>
+              </div>
+              <div class="stat-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line></svg>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <h5>To Do</h5>
+                <div id="statPendingTasks" class="stat-value">0</div>
+                <div class="stat-subtitle">Pending start</div>
+              </div>
+              <div class="stat-icon info">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <h5>In Progress</h5>
+                <div id="statInProgressTasks" class="stat-value">0</div>
+                <div class="stat-subtitle">Active development</div>
+              </div>
+              <div class="stat-icon warning">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <h5>Completed</h5>
+                <div id="statCompletedTasks" class="stat-value">0</div>
+                <div class="stat-subtitle">Done & verified</div>
+              </div>
+              <div class="stat-icon success">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Split Section -->
+          <div class="dashboard-split">
+            <!-- Left Panel: Recent Projects & Upcoming Deadlines -->
+            <div>
+              <div class="dashboard-panel" style="margin-bottom: 24px;">
+                <div class="section-header">
+                  <h3>Recent Projects</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="navigateTo('projects')">View All Projects</button>
+                </div>
+                <div id="dashRecentProjectsList" class="projects-grid">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+
+              <!-- Upcoming Task Deadlines -->
+              <div class="dashboard-panel">
+                <div class="section-header">
+                  <h3>Upcoming Deadlines</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="navigateTo('mytasks')">My Tasks</button>
+                </div>
+                <div id="dashUpcomingTasksList">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Panel: Recent Team Activity Feed -->
+            <div>
+              <div class="dashboard-panel">
+                <div class="section-header">
+                  <h3>Recent Activity</h3>
+                  <span class="live-pill" style="font-size: 10px;">Live</span>
+                </div>
+                <div id="dashActivityList" class="activity-list">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 2: MY PROJECTS -->
+        <section id="view-projects" class="page-view">
+          <div class="section-header">
+            <div>
+              <h3>All Projects</h3>
+              <p style="color: var(--text-muted); font-size: 13px;">Manage group projects, team members and deadlines</p>
+            </div>
+            <button class="btn btn-primary" onclick="openCreateProjectModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Create Project</span>
+            </button>
+          </div>
+
+          <!-- Filter & Search Controls -->
+          <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+            <input type="text" id="projectsSearchInput" class="form-control" placeholder="Search projects by name..." style="max-width: 300px;" oninput="handleProjectsFilter()">
+            <select id="projectsStatusFilter" class="form-control" style="max-width: 180px;" onchange="handleProjectsFilter()">
+              <option value="all">All Statuses</option>
+              <option value="Active">Active</option>
+              <option value="Planning">Planning</option>
+              <option value="On Hold">On Hold</option>
+              <option value="Completed">Completed</option>
+            </select>
+            <select id="projectsPriorityFilter" class="form-control" style="max-width: 180px;" onchange="handleProjectsFilter()">
+              <option value="all">All Priorities</option>
+              <option value="High">High Priority</option>
+              <option value="Medium">Medium Priority</option>
+              <option value="Low">Low Priority</option>
+            </select>
+          </div>
+
+          <div id="projectsGrid" class="projects-grid">
+            <!-- Populated via JS -->
+          </div>
+        </section>
+
+        <!-- VIEW 3: PROJECT KANBAN BOARD -->
+        <section id="view-board" class="page-view">
+          <div class="board-container">
+            <!-- Board Header -->
+            <div class="board-header">
+              <div class="board-project-info">
+                <span id="boardColorTag" class="board-color-indicator"></span>
+                <div>
+                  <h2 id="boardProjectTitle" class="board-title">Select a Project</h2>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+                    <span id="boardCategoryBadge" class="project-category-badge">Web App</span>
+                    <span id="boardStatusBadge" class="badge-tag">Active</span>
+                    <span id="boardDeadlineBadge" class="project-deadline">Deadline: -</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Board Controls & Team -->
+              <div class="board-actions">
+                <div id="boardTeamStack" class="avatar-stack">
+                  <!-- Avatars populated via JS -->
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="openManageTeamModal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                  <span>Team</span>
+                </button>
+                <div class="board-filters">
+                  <input type="text" id="boardSearchInput" placeholder="🔍 Search tasks..." style="border:none; outline:none; font-size:13px; width:140px;" oninput="filterBoardCards()">
+                  <select id="boardPriorityFilter" class="filter-select" onchange="filterBoardCards()">
+                    <option value="all">All Priorities</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                  <select id="boardMemberFilter" class="filter-select" onchange="filterBoardCards()">
+                    <option value="all">All Assignees</option>
+                    <option value="unassigned">Unassigned</option>
+                  </select>
+                  <select id="boardStatusFilter" class="filter-select" onchange="filterBoardCards()">
+                    <option value="all">All Statuses</option>
+                    <option value="To Do">To Do</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Review">Review</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                  <button type="button" class="btn-comment-action" title="Reset all filters" onclick="resetBoardFilters()" style="padding: 2px 6px;">Reset</button>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="btnExportCsv" title="Export Project Tasks to CSV" onclick="handleExportProjectCSV()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  <span>Export CSV</span>
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="openEditProjectModal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                  <span>Settings</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Project Analytics Strip -->
+            <div id="boardAnalyticsStrip" class="project-analytics-strip">
+              <div class="analytics-metric-group">
+                <div class="analytics-pill"><span>Total:</span> <span id="bStatTotal" class="analytics-pill-val">0</span></div>
+                <div class="analytics-pill"><span>To Do:</span> <span id="bStatTodo" class="analytics-pill-val">0</span></div>
+                <div class="analytics-pill"><span>In Progress:</span> <span id="bStatInProgress" class="analytics-pill-val">0</span></div>
+                <div class="analytics-pill"><span>Review:</span> <span id="bStatReview" class="analytics-pill-val">0</span></div>
+                <div class="analytics-pill"><span>Completed:</span> <span id="bStatCompleted" class="analytics-pill-val completed">0</span></div>
+                <div class="analytics-pill"><span>Overdue:</span> <span id="bStatOverdue" class="analytics-pill-val overdue">0</span></div>
+              </div>
+              <div class="analytics-progress-wrap">
+                <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Progress:</span>
+                <div class="analytics-progress-bar">
+                  <div id="boardProgressFill" class="analytics-progress-fill" style="width: 0%;"></div>
+                </div>
+                <span id="boardProgressText" style="font-size: 13px; font-weight: 700; color: var(--text-main); min-width: 38px;">0%</span>
+              </div>
+            </div>
+
+            <!-- Kanban 4 Columns -->
+            <div class="kanban-columns-wrapper">
+              <!-- COLUMN 1: TO DO -->
+              <div class="kanban-column col-todo" data-column-status="To Do" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                <div class="column-header">
+                  <div class="column-title-box">
+                    <span class="column-dot"></span>
+                    <h4 class="column-title">To Do</h4>
+                    <span id="count-todo" class="column-count">0</span>
+                  </div>
+                  <button class="btn-add-task-col" title="Add task to To Do" onclick="openCreateTaskModal('To Do')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  </button>
+                </div>
+                <div id="cards-todo" class="column-cards-list"></div>
+              </div>
+
+              <!-- COLUMN 2: IN PROGRESS -->
+              <div class="kanban-column col-inprogress" data-column-status="In Progress" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                <div class="column-header">
+                  <div class="column-title-box">
+                    <span class="column-dot"></span>
+                    <h4 class="column-title">In Progress</h4>
+                    <span id="count-inprogress" class="column-count">0</span>
+                  </div>
+                  <button class="btn-add-task-col" title="Add task to In Progress" onclick="openCreateTaskModal('In Progress')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  </button>
+                </div>
+                <div id="cards-inprogress" class="column-cards-list"></div>
+              </div>
+
+              <!-- COLUMN 3: REVIEW -->
+              <div class="kanban-column col-review" data-column-status="Review" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                <div class="column-header">
+                  <div class="column-title-box">
+                    <span class="column-dot"></span>
+                    <h4 class="column-title">Review</h4>
+                    <span id="count-review" class="column-count">0</span>
+                  </div>
+                  <button class="btn-add-task-col" title="Add task to Review" onclick="openCreateTaskModal('Review')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  </button>
+                </div>
+                <div id="cards-review" class="column-cards-list"></div>
+              </div>
+
+              <!-- COLUMN 4: COMPLETED -->
+              <div class="kanban-column col-completed" data-column-status="Completed" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                <div class="column-header">
+                  <div class="column-title-box">
+                    <span class="column-dot"></span>
+                    <h4 class="column-title">Completed</h4>
+                    <span id="count-completed" class="column-count">0</span>
+                  </div>
+                  <button class="btn-add-task-col" title="Add task to Completed" onclick="openCreateTaskModal('Completed')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  </button>
+                </div>
+                <div id="cards-completed" class="column-cards-list"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 4: MY TASKS -->
+        <section id="view-mytasks" class="page-view">
+          <div class="section-header">
+            <div>
+              <h3>Tasks Assigned to Me</h3>
+              <p style="color: var(--text-muted); font-size: 13px;">Overview of all tasks assigned to you across all projects</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <input type="text" id="myTasksSearchInput" class="form-control" placeholder="🔍 Search tasks..." style="max-width: 180px;" oninput="renderMyTasksView()">
+              <select id="myTasksStatusFilter" class="form-control" style="max-width: 140px;" onchange="renderMyTasksView()">
+                <option value="all">All Statuses</option>
+                <option value="To Do">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Review">Review</option>
+                <option value="Completed">Completed</option>
+              </select>
+              <select id="myTasksPriorityFilter" class="form-control" style="max-width: 140px;" onchange="renderMyTasksView()">
+                <option value="all">All Priorities</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+              <select id="myTasksSortBy" class="form-control" style="max-width: 150px;" onchange="renderMyTasksView()">
+                <option value="dueDate">Sort: Due Date</option>
+                <option value="priority">Sort: Priority</option>
+                <option value="title">Sort: Title</option>
+              </select>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="resetMyTasksFilters()">Reset</button>
+            </div>
+          </div>
+          <div id="myTasksList" class="projects-grid">
+            <!-- Populated via JS -->
+          </div>
+        </section>
+
+        <!-- VIEW 5: TEAM MEMBERS -->
+        <section id="view-team" class="page-view">
+          <div class="section-header">
+            <div>
+              <h3>Team Directory</h3>
+              <p style="color: var(--text-muted); font-size: 13px;">Browse registered workspace members and their roles</p>
+            </div>
+            <input type="text" id="teamSearchInput" class="form-control" placeholder="Search members by name or role..." style="max-width: 280px;" oninput="handleTeamSearch()">
+          </div>
+          <div id="teamMembersGrid" class="projects-grid">
+            <!-- Populated via JS -->
+          </div>
+        </section>
+
+        <!-- VIEW 6: NOTIFICATIONS -->
+        <section id="view-notifications" class="page-view">
+          <div class="section-header">
+            <div>
+              <h3>Notifications & Alerts</h3>
+              <p style="color: var(--text-muted); font-size: 13px;">Real-time task assignments, status movements, and comments</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="markAllNotificationsRead()">
+              Mark All Read
+            </button>
+          </div>
+          <div id="notificationsPageList" class="dashboard-panel" style="padding: 0;">
+            <!-- Populated via JS -->
+          </div>
+        </section>
+
+        <!-- VIEW 7: PROFILE & SETTINGS -->
+        <section id="view-profile" class="page-view">
+          <div class="section-header">
+            <div>
+              <h3>Profile Settings</h3>
+              <p style="color: var(--text-muted); font-size: 13px;">Manage your user profile, avatar, credentials and workspace preferences</p>
+            </div>
+          </div>
+
+          <!-- Hero Profile Card -->
+          <div class="profile-hero-card">
+            <div class="profile-hero-left">
+              <img id="profAvatarPreview" class="profile-avatar-large" src="" alt="Profile Picture">
+              <div class="profile-hero-info">
+                <h3 id="profCardName">User Name</h3>
+                <p id="profCardEmail">user@example.com</p>
+                <div class="profile-hero-badges">
+                  <span id="profCardRoleBadge" class="badge-tag" style="background: var(--primary-light); color: var(--primary); font-weight: 700; text-transform: uppercase;">MEMBER</span>
+                  <span id="profCardJobTitle" class="badge-tag" style="background: #f1f5f9; color: var(--text-muted);">Software Engineer</span>
+                  <span id="profCardJoinedDate" style="font-size: 12px; color: var(--text-light);">Member since -</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile Summary Statistics -->
+            <div class="profile-hero-stats">
+              <div class="profile-stat-box">
+                <div id="profCardProjectsCount" class="num">0</div>
+                <div class="lbl">Projects</div>
+              </div>
+              <div style="width: 1px; background: var(--border-light);"></div>
+              <div class="profile-stat-box">
+                <div id="profCardTasksCount" class="num">0</div>
+                <div class="lbl">Assigned Tasks</div>
+              </div>
+              <div style="width: 1px; background: var(--border-light);"></div>
+              <div class="profile-stat-box">
+                <div id="profCardCompletedTasksCount" class="num">0</div>
+                <div class="lbl">Completed</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-split">
+            <!-- Left Panel: Personal Details & Avatar Selector -->
+            <div class="dashboard-panel">
+              <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 20px;">Personal Details</h4>
+              <form id="profileForm" onsubmit="handleProfileSubmit(event)">
+                <div class="form-group">
+                  <label class="form-label">Full Name *</label>
+                  <input type="text" id="profName" class="form-control" placeholder="Your full name" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email Address (Read-only)</label>
+                  <input type="email" id="profEmail" class="form-control" disabled style="background:#f1f5f9; cursor: not-allowed;">
+                  <small style="font-size: 11px; color: var(--text-light); margin-top: 4px; display: block;">Primary account email cannot be changed for security</small>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select id="profRoleSelect" class="form-control">
+                      <option value="member">Member</option>
+                      <option value="developer">Developer</option>
+                      <option value="designer">Designer</option>
+                      <option value="manager">Manager</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Job Title</label>
+                    <input type="text" id="profJobTitle" class="form-control" placeholder="e.g. Senior Frontend Engineer">
+                  </div>
+                </div>
+
+                <!-- Avatar Selection & URL -->
+                <div class="form-group">
+                  <label class="form-label">Profile Picture (Avatar)</label>
+                  <input type="url" id="profAvatarUrl" class="form-control" placeholder="https://... or choose a preset below" oninput="previewAvatar(this.value)">
+                  <div class="avatar-presets-row">
+                    <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Presets:</span>
+                    <button type="button" class="btn-avatar-preset" title="Executive" onclick="selectAvatarPreset('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80')">
+                      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Preset 1">
+                    </button>
+                    <button type="button" class="btn-avatar-preset" title="Developer" onclick="selectAvatarPreset('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=250&q=80')">
+                      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80" alt="Preset 2">
+                    </button>
+                    <button type="button" class="btn-avatar-preset" title="Architect" onclick="selectAvatarPreset('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=250&q=80')">
+                      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="Preset 3">
+                    </button>
+                    <button type="button" class="btn-avatar-preset" title="Designer" onclick="selectAvatarPreset('https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=250&q=80')">
+                      <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=100&q=80" alt="Preset 4">
+                    </button>
+                    <button type="button" class="btn-avatar-preset" title="Engineer" onclick="selectAvatarPreset('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=250&q=80')">
+                      <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" alt="Preset 5">
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Bio / About</label>
+                  <textarea id="profBio" class="form-control" placeholder="A brief summary about your skills, role, and focus..."></textarea>
+                </div>
+                <button type="submit" id="btnSaveProfile" class="btn btn-primary">
+                  Save Profile Changes
+                </button>
+              </form>
+            </div>
+
+            <!-- Right Panel: Change Password -->
+            <div class="dashboard-panel">
+              <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 20px;">Security & Password</h4>
+              <form id="passwordForm" onsubmit="handlePasswordSubmit(event)">
+                <div class="form-group">
+                  <label class="form-label">Current Password *</label>
+                  <input type="password" id="currentPass" class="form-control" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">New Password * (min 6 characters)</label>
+                  <input type="password" id="newPass" class="form-control" placeholder="••••••••" required minlength="6">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Confirm New Password *</label>
+                  <input type="password" id="confirmPass" class="form-control" placeholder="••••••••" required minlength="6">
+                </div>
+                <button type="submit" id="btnUpdatePassword" class="btn btn-secondary">
+                  Update Password
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 8: CALENDAR VIEW -->
+        <section id="view-calendar" class="page-view">
+          <div class="section-header">
+            <div>
+              <h3>Calendar View</h3>
+              <p style="color: var(--text-muted); font-size: 13px;">View and manage task deadlines across your projects</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <select id="calendarProjectFilter" class="form-control" style="max-width: 200px;" onchange="renderCalendarView()">
+                <option value="all">All Projects</option>
+              </select>
+              <button class="btn btn-secondary btn-sm" onclick="calendarNavigate(-1)">&larr; Prev</button>
+              <button class="btn btn-secondary btn-sm" onclick="calendarToday()">Today</button>
+              <button class="btn btn-secondary btn-sm" onclick="calendarNavigate(1)">Next &rarr;</button>
+            </div>
+          </div>
+          <div class="calendar-container">
+            <div class="calendar-month-header">
+              <h4 id="calendarMonthTitle" style="font-size: 18px; font-weight: 700; margin: 0; color: var(--text-main);">Month Year</h4>
+            </div>
+            <div class="calendar-grid-header">
+              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+            <div id="calendarDaysGrid" class="calendar-grid">
+              <!-- Populated by calendar.js -->
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 9: ANALYTICS DASHBOARD -->
+        <section id="view-analytics" class="page-view">
+          <div class="section-header">
+            <div>
+              <h3>Analytics & Reports</h3>
+              <p style="color: var(--text-muted); font-size: 13px;">Real-time task completion trends, project velocity and overdue reports</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="loadAnalyticsData()">
+              🔄 Refresh Analytics
+            </button>
+          </div>
+          <!-- Analytics Overview Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-info">
+                <h5>Active Projects</h5>
+                <div id="anaStatProjects" class="stat-value">0</div>
+                <div class="stat-subtitle">In progress</div>
+              </div>
+              <div class="stat-icon primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <h5>Total Tasks</h5>
+                <div id="anaStatTasks" class="stat-value">0</div>
+                <div class="stat-subtitle">Workspace tasks</div>
+              </div>
+              <div class="stat-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line></svg>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <h5>Completion Rate</h5>
+                <div id="anaStatCompletionRate" class="stat-value">0%</div>
+                <div class="stat-subtitle">Overall completion</div>
+              </div>
+              <div class="stat-icon success">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-info">
+                <h5>Overdue Tasks</h5>
+                <div id="anaStatOverdue" class="stat-value" style="color: var(--danger);">0</div>
+                <div class="stat-subtitle">Requires attention</div>
+              </div>
+              <div class="stat-icon danger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analytics Charts Split -->
+          <div class="dashboard-split" style="margin-top: 24px;">
+            <div class="dashboard-panel">
+              <div class="section-header">
+                <h4>Weekly Task Completion</h4>
+                <span style="font-size: 12px; color: var(--text-muted);">Last 7 Days</span>
+              </div>
+              <div id="weeklyCompletionChart" class="chart-bars-container">
+                <!-- Populated via analytics.js -->
+              </div>
+            </div>
+            <div class="dashboard-panel">
+              <div class="section-header">
+                <h4>Task Status Distribution</h4>
+              </div>
+              <div id="statusDistributionBars" class="status-dist-container">
+                <!-- Populated via analytics.js -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Project Progress & Overdue Tasks Split -->
+          <div class="dashboard-split" style="margin-top: 24px;">
+            <div class="dashboard-panel">
+              <div class="section-header">
+                <h4>Project Velocity & Progress</h4>
+              </div>
+              <div id="analyticsProjectList" style="display:flex; flex-direction:column; gap: 14px;">
+                <!-- Populated via analytics.js -->
+              </div>
+            </div>
+            <div class="dashboard-panel">
+              <div class="section-header">
+                <h4>Overdue Tasks Alert</h4>
+                <span id="anaOverdueCountBadge" class="badge-tag overdue">0 Overdue</span>
+              </div>
+              <div id="analyticsOverdueList">
+                <!-- Populated via analytics.js -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 10: AUDIT LOGS -->
+        <section id="view-audit" class="page-view">
+          <div class="section-header">
+            <div>
+              <h3>Audit Logs & Security Trail</h3>
+              <p style="color: var(--text-muted); font-size: 13px;">Full traceable record of project updates, task mutations, and team changes</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <select id="auditActionFilter" class="form-control" style="max-width: 180px;" onchange="loadAuditLogs(1)">
+                <option value="">All Actions</option>
+                <option value="task_created">Task Created</option>
+                <option value="task_updated">Task Updated</option>
+                <option value="task_status_changed">Status Changed</option>
+                <option value="task_deleted">Task Deleted</option>
+                <option value="project_created">Project Created</option>
+                <option value="project_updated">Project Updated</option>
+                <option value="member_added">Member Added</option>
+                <option value="member_removed">Member Removed</option>
+                <option value="attachment_uploaded">File Uploaded</option>
+                <option value="invitation_sent">Invite Sent</option>
+              </select>
+              <button class="btn btn-secondary btn-sm" onclick="loadAuditLogs(1)">Refresh</button>
+            </div>
+          </div>
+          <div class="dashboard-panel" style="padding: 0; overflow-x: auto;">
+            <table class="audit-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>User</th>
+                  <th>Action</th>
+                  <th>Details</th>
+                  <th>Project</th>
+                </tr>
+              </thead>
+              <tbody id="auditLogsTableBody">
+                <!-- Populated via audit.js -->
+              </tbody>
+            </table>
+            <div id="auditPagination" class="pagination-bar" style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-light);">
+              <span id="auditPageIndicator" style="font-size: 13px; color: var(--text-muted);">Page 1 of 1</span>
+              <div style="display: flex; gap: 8px;">
+                <button id="btnAuditPrev" class="btn btn-secondary btn-sm" onclick="auditPrevPage()" disabled>&larr; Prev</button>
+                <button id="btnAuditNext" class="btn btn-secondary btn-sm" onclick="auditNextPage()" disabled>Next &rarr;</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       3. MODALS AND DIALOGS
+       ========================================================================= -->
+
+  <!-- MODAL: CREATE PROJECT -->
+  <div id="modalCreateProject" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Create New Project</h3>
+        <button class="btn-icon" onclick="closeModal('modalCreateProject')">&times;</button>
+      </div>
+      <form id="createProjectForm" onsubmit="handleCreateProjectSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Project Name *</label>
+            <input type="text" id="cpName" class="form-control" placeholder="e.g. Mobile App Redesign" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea id="cpDescription" class="form-control" placeholder="Describe the objectives and scope..."></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select id="cpCategory" class="form-control">
+                <option value="Web App">Web App</option>
+                <option value="Mobile App">Mobile App</option>
+                <option value="Design">Design</option>
+                <option value="Marketing">Marketing</option>
+                <option value="DevOps">DevOps</option>
+                <option value="General">General</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Priority</label>
+              <select id="cpPriority" class="form-control">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Deadline</label>
+              <input type="date" id="cpDeadline" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Theme Color</label>
+              <select id="cpColor" class="form-control">
+                <option value="#4f46e5">Indigo</option>
+                <option value="#0ea5e9">Sky Blue</option>
+                <option value="#10b981">Emerald Green</option>
+                <option value="#f59e0b">Amber</option>
+                <option value="#ec4899">Pink</option>
+                <option value="#8b5cf6">Purple</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalCreateProject')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: EDIT PROJECT -->
+  <div id="modalEditProject" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Edit Project Settings</h3>
+        <button class="btn-icon" onclick="closeModal('modalEditProject')">&times;</button>
+      </div>
+      <form id="editProjectForm" onsubmit="handleEditProjectSubmit(event)">
+        <div class="modal-body">
+          <input type="hidden" id="epId">
+          <div class="form-group">
+            <label class="form-label">Project Name *</label>
+            <input type="text" id="epName" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea id="epDescription" class="form-control"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select id="epStatus" class="form-control">
+                <option value="Active">Active</option>
+                <option value="Planning">Planning</option>
+                <option value="On Hold">On Hold</option>
+                <option value="Completed">Completed</option>
+                <option value="Archived">Archived</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Priority</label>
+              <select id="epPriority" class="form-control">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Deadline</label>
+              <input type="date" id="epDeadline" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select id="epCategory" class="form-control">
+                <option value="Web App">Web App</option>
+                <option value="Mobile App">Mobile App</option>
+                <option value="Design">Design</option>
+                <option value="DevOps">DevOps</option>
+                <option value="Marketing">Marketing</option>
+                <option value="General">General</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" onclick="confirmDeleteCurrentProject()" style="margin-right:auto;">Delete Project</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalEditProject')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: MANAGE TEAM MEMBERS -->
+  <div id="modalManageTeam" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Project Team Members</h3>
+        <button class="btn-icon" onclick="closeModal('modalManageTeam')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Add Member Form -->
+        <div style="background: #f8fafc; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); margin-bottom: 16px;">
+          <h5 style="font-size: 13px; font-weight: 700; margin-bottom: 10px;">Add Registered Member</h5>
+          <div style="display: flex; gap: 10px;">
+            <select id="teamAddUserSelect" class="form-control" style="flex: 2;">
+              <option value="">Select team member...</option>
+            </select>
+            <select id="teamAddRoleSelect" class="form-control" style="flex: 1;">
+              <option value="member">Member</option>
+              <option value="lead">Lead</option>
+              <option value="admin">Admin</option>
+              <option value="viewer">Viewer</option>
+            </select>
+            <button type="button" class="btn btn-primary btn-sm" onclick="handleAddMemberToProject()">Add</button>
+          </div>
+        </div>
+
+        <!-- Invite by Email -->
+        <div style="background: #f8fafc; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); margin-bottom: 20px;">
+          <h5 style="font-size: 13px; font-weight: 700; margin-bottom: 10px;">📧 Invite Member by Email</h5>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="email" id="inviteEmailInput" class="form-control" placeholder="colleague@company.com" style="flex: 2; min-width: 160px;">
+            <select id="inviteRoleSelect" class="form-control" style="flex: 1; min-width: 100px;">
+              <option value="member">Member</option>
+              <option value="lead">Lead</option>
+              <option value="admin">Admin</option>
+              <option value="viewer">Viewer</option>
+            </select>
+            <button type="button" class="btn btn-primary btn-sm" onclick="handleSendProjectInvitation()">Send Invite</button>
+          </div>
+          <div id="projectInvitationsList" style="margin-top: 10px;"></div>
+        </div>
+
+        <h5 style="font-size: 13px; font-weight: 700; margin-bottom: 12px;">Current Members</h5>
+        <div id="projectMemberList" style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalManageTeam')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREATE TASK -->
+  <div id="modalCreateTask" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Create New Task</h3>
+        <button class="btn-icon" onclick="closeModal('modalCreateTask')">&times;</button>
+      </div>
+      <form id="createTaskForm" onsubmit="handleCreateTaskSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group" id="ctProjectSelectGroup">
+            <label class="form-label">Project *</label>
+            <select id="ctProjectId" class="form-control" required onchange="populateTaskAssigneeOptions(this.value)">
+              <!-- Options populated via JS -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Task Title *</label>
+            <input type="text" id="ctTitle" class="form-control" placeholder="e.g. Build API Endpoints" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea id="ctDescription" class="form-control" placeholder="Add task details, checklist, or acceptance criteria..."></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Initial Column</label>
+              <select id="ctStatus" class="form-control">
+                <option value="To Do">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Review">Review</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Priority</label>
+              <select id="ctPriority" class="form-control">
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Assignee</label>
+              <select id="ctAssignedTo" class="form-control">
+                <option value="">Unassigned</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Due Date</label>
+              <input type="date" id="ctDueDate" class="form-control">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Recurring Task</label>
+              <select id="ctRecurring" class="form-control">
+                <option value="none">None (One-time)</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Labels (comma-separated)</label>
+              <input type="text" id="ctLabels" class="form-control" placeholder="e.g. Bug, Feature, Urgent">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tags (comma-separated)</label>
+            <input type="text" id="ctTags" class="form-control" placeholder="e.g. Backend, Security, UI">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalCreateTask')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: TASK DETAILS & COMMENTS (Large Modal) -->
+  <div id="modalTaskDetails" class="modal-overlay">
+    <div class="modal-container modal-lg">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <span id="tdPriorityBadge" class="badge-priority medium">Medium</span>
+          <span id="tdStatusBadge" class="badge-tag">To Do</span>
+          <span id="tdDueDateBadge" class="due-badge due-normal">📅 No deadline</span>
+        </div>
+        <button class="btn-icon" onclick="closeModal('modalTaskDetails')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="task-details-grid">
+          <!-- Main Left Column -->
+          <div class="task-details-main">
+            <div>
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px;">
+                <h2 id="tdTitle" style="font-size: 20px; font-weight: 700; color: var(--text-main); flex: 1;">Task Title</h2>
+                <button type="button" id="btnToggleEditTask" class="btn btn-secondary btn-sm" onclick="toggleTaskEditMode()">
+                  ✏️ Edit
+                </button>
+              </div>
+              <p id="tdDescription" style="color: var(--text-muted); font-size: 14px; line-height: 1.6; white-space: pre-wrap;">Description</p>
+              
+              <!-- Inline Task Edit Form (Hidden by default) -->
+              <div id="tdEditForm" style="display: none; margin-top: 14px; background: #f8fafc; padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                <div class="form-group">
+                  <label class="form-label" style="font-size: 12px;">Task Title</label>
+                  <input type="text" id="tdEditTitleInput" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" style="font-size: 12px;">Task Description</label>
+                  <textarea id="tdEditDescInput" class="form-control" rows="3" placeholder="Task details, checklist, acceptance criteria..."></textarea>
+                </div>
+                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="toggleTaskEditMode(false)">Cancel</button>
+                  <button type="button" class="btn btn-primary btn-sm" onclick="saveTaskInfoEdit()">Save Changes</button>
+                </div>
+              </div>
+
+              <!-- Labels Badge Row -->
+              <div style="margin-top: 14px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Labels:</span>
+                <div id="tdLabelsContainer" style="display: inline-flex; gap: 6px; flex-wrap: wrap;"></div>
+              </div>
+
+              <!-- Attachments Section -->
+              <div class="task-attachments-section" style="margin-top: 20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+                  <h4 style="font-size: 14px; font-weight: 700; color: var(--text-main); margin:0;">📎 Attachments (<span id="tdAttachmentCount">0</span>)</h4>
+                  <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin:0;">
+                    <span>+ Upload File</span>
+                    <input type="file" id="tdFileInput" style="display: none;" onchange="handleAttachmentUpload(this.files)" multiple>
+                  </label>
+                </div>
+                <div id="tdAttachmentsDropzone" class="attachments-dropzone" ondragover="event.preventDefault(); this.classList.add('drag-over');" ondragleave="this.classList.remove('drag-over');" ondrop="handleAttachmentDrop(event)">
+                  <p style="font-size: 12px; color: var(--text-muted); margin:0;">Drag & drop files here, or click '+ Upload File' above (Max 5MB: Images, PDF, Doc, CSV, TXT, ZIP)</p>
+                </div>
+                <div id="tdAttachmentsList" class="attachments-list" style="margin-top: 12px;">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Task Tabs: Comments vs Activity Timeline -->
+            <div class="task-comments-section" style="margin-top: 24px;">
+              <div class="modal-tabs-header">
+                <button type="button" id="tabBtnComments" class="modal-tab-btn active" onclick="switchTaskModalTab('comments')">
+                  💬 Comments (<span id="tdCommentCount">0</span>)
+                </button>
+                <button type="button" id="tabBtnActivities" class="modal-tab-btn" onclick="switchTaskModalTab('activities')">
+                  📜 Activity Timeline (<span id="tdActivityCount">0</span>)
+                </button>
+              </div>
+
+              <!-- Tab Pane 1: Comments -->
+              <div id="paneComments">
+                <!-- Comments List -->
+                <div id="tdCommentsList" class="comments-list">
+                  <!-- Comments rendered via JS -->
+                </div>
+
+                <!-- Add Comment Input -->
+                <form id="addCommentForm" class="add-comment-box" onsubmit="handleAddCommentSubmit(event)">
+                  <img id="tdCurrentUserCommentAvatar" class="comment-avatar" src="" alt="Me">
+                  <div class="add-comment-input">
+                    <textarea id="newCommentContent" class="form-control" placeholder="Write a comment... (Enter to post)" style="min-height: 60px;" required></textarea>
+                    <div style="margin-top: 8px; text-align: right;">
+                      <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Tab Pane 2: Activity Timeline -->
+              <div id="paneActivities" style="display: none;">
+                <div id="tdActivityTimelineList" class="activity-timeline">
+                  <!-- Activity items populated via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar Right Column (Meta & Actions) -->
+          <div class="task-details-sidebar">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" style="font-size: 11px; text-transform: uppercase;">Status Column</label>
+              <select id="tdStatusSelect" class="form-control" onchange="handleTaskStatusChange(this.value)">
+                <option value="To Do">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Review">Review</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" style="font-size: 11px; text-transform: uppercase;">Priority</label>
+              <select id="tdPrioritySelect" class="form-control" onchange="handleTaskFieldUpdate({ priority: this.value })">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" style="font-size: 11px; text-transform: uppercase;">Assignee</label>
+              <select id="tdAssigneeSelect" class="form-control" onchange="handleTaskFieldUpdate({ assignedTo: this.value || null })">
+                <option value="">Unassigned</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" style="font-size: 11px; text-transform: uppercase;">Due Date</label>
+              <input type="date" id="tdDueDateInput" class="form-control" onchange="handleTaskFieldUpdate({ dueDate: this.value || null })">
+              <div id="tdDueStatusHelper" style="margin-top: 6px;"></div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" style="font-size: 11px; text-transform: uppercase;">Recurring Schedule</label>
+              <select id="tdRecurringSelect" class="form-control" onchange="handleTaskFieldUpdate({ recurring: this.value })">
+                <option value="none">None (One-time)</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+
+            <div style="margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--border-light);">
+              <div style="font-size: 11px; color: var(--text-light); margin-bottom: 4px;">Created By: <strong id="tdCreatedByText">-</strong></div>
+              <div style="font-size: 11px; color: var(--text-light); margin-bottom: 12px;">Created: <span id="tdCreatedAtText">-</span></div>
+              <button type="button" class="btn btn-danger btn-sm" style="width: 100%;" onclick="confirmDeleteCurrentTask()">
+                Delete Task
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRMATION MODAL -->
+  <div id="modalConfirm" class="modal-overlay">
+    <div class="modal-container" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 id="confirmModalTitle">Are you sure?</h3>
+        <button class="btn-icon" onclick="closeModal('modalConfirm')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmModalMessage" style="color: var(--text-muted); font-size: 14px; line-height: 1.5;">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalConfirm')">Cancel</button>
+        <button type="button" id="confirmModalActionBtn" class="btn btn-danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: FORGOT PASSWORD -->
+  <div id="modalForgotPassword" class="modal-overlay">
+    <div class="modal-container" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3>Reset Password</h3>
+        <button class="btn-icon" onclick="closeModal('modalForgotPassword')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="forgotRequestArea">
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+            Enter your account email address. We will generate a secure reset token to change your password.
+          </p>
+          <form onsubmit="handleForgotPasswordSubmit(event)">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" id="forgotEmailInput" class="form-control" placeholder="name@company.com" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              Generate Password Reset Token
+            </button>
+          </form>
+        </div>
+
+        <div id="forgotResetArea" style="display: none;">
+          <p style="font-size: 13px; color: var(--success); margin-bottom: 16px;">
+            Reset token active! Enter your new password below.
+          </p>
+          <form onsubmit="handleResetPasswordSubmit(event)">
+            <div class="form-group">
+              <label class="form-label">New Password (min 6 chars)</label>
+              <input type="password" id="forgotNewPassword" class="form-control" placeholder="••••••••" required minlength="6">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              Save New Password & Sign In
+            </button>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalForgotPassword')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- =========================================================================
+       4. SCRIPTS
+       ========================================================================= -->
+  <!-- Socket.IO Client Library (served automatically by Socket.IO server) -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- Modular App Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/projects.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/tasks.js"></script>
+  <script src="js/comments.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/audit.js"></script>
+  <script src="js/team.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

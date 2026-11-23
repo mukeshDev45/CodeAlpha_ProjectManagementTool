@@ -1,0 +1,22 @@
+{
+  "name": "projectflow",
+  "version": "1.0.0",
+  "description": "CodeAlpha Full Stack Internship Task 3 - ProjectFlow: Professional Project Management Tool",
+  "scripts": {
+    "install:backend": "cd backend && npm install",
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "seed": "cd backend && npm run seed"
+  },
+  "keywords": [
+    "project-management",
+    "kanban",
+    "trello-clone",
+    "codealpha",
+    "full-stack",
+    "socket.io",
+    "mongodb"
+  ],
+  "author": "CodeAlpha Intern",
+  "license": "MIT"
+}
