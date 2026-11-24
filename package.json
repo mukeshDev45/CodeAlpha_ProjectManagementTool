@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "CodeAlpha Full Stack Internship Task 3 - ProjectFlow: Professional Project Management Tool",
   "scripts": {
+    "build": "cd backend && npm install",
     "install:backend": "cd backend && npm install",
     "start": "cd backend && npm start",
     "dev": "cd backend && npm run dev",
