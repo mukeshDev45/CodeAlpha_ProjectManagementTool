@@ -4,6 +4,7 @@
 > Suggested Repository Name: `CodeAlpha_ProjectManagementTool`  
 > Live Stack: **Node.js • Express.js • MongoDB • Mongoose • HTML5 • CSS3 • JavaScript (ES6+) • Socket.IO • JWT**
 
+[![Live Demo](https://img.shields.io/badge/Demo-Live%20on%20Render-blueviolet.svg)](https://codealpha-projectmanagementtool-f96j.onrender.com)
 [![Node.js Version](https://img.shields.io/badge/Node.js-v18%2B-green.svg)](https://nodejs.org/)
 [![Database](https://img.shields.io/badge/Database-MongoDB-forestgreen.svg)](https://www.mongodb.com/)
 [![Real-time](https://img.shields.io/badge/WebSockets-Socket.IO-black.svg)](https://socket.io/)

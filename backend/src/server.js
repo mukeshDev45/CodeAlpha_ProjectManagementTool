@@ -127,8 +127,11 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 // Connect Database & Start Server
+const autoSeed = require('./utils/autoSeed');
+
 const startServer = async () => {
   await connectDB();
+  await autoSeed();
   server.listen(PORT, () => {
     console.log(`=======================================================`);
     console.log(` ProjectFlow Server running in ${process.env.NODE_ENV || 'development'} mode`);
