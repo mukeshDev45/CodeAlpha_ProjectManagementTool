@@ -49,7 +49,7 @@ function navigateTo(viewName) {
     profile: { title: 'Profile & Settings', crumb: 'Account • Credentials' },
   };
 
-  const current = titles[viewName] || { title: 'ProjectFlow', crumb: 'Workspace' };
+  const current = titles[viewName] || { title: 'Project Management Tool', crumb: 'Workspace' };
   if (titleEl) titleEl.textContent = current.title;
   if (breadcrumbEl) breadcrumbEl.textContent = current.crumb;
 

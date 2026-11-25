@@ -1,4 +1,4 @@
-# ProjectFlow — Collaborative Project Management & Kanban Platform
+# Project Management Tool — Collaborative Kanban Platform
 
 > **CodeAlpha Full Stack Development Internship — Task 3**  
 > Suggested Repository Name: `CodeAlpha_ProjectManagementTool`  
