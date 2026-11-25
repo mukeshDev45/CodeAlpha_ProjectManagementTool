@@ -184,6 +184,11 @@
   cursor: grabbing;
 }
 
+.task-card.task-card-overdue {
+  border-left: 4px solid #ef4444 !important;
+  background: #fffafa;
+}
+
 .task-card-tags {
   display: flex;
   align-items: center;

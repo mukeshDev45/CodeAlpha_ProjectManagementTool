@@ -1,67 +1,83 @@
 // ProjectFlow User Profile & Security Controller
 
-async function loadProfileView() {
-  try {
-    // 1. Fetch fresh authenticated user details from MongoDB
-    const res = await API.get('/auth/me');
-    if (!res.success || !res.user) return;
+function populateProfileUI(user, stats = null) {
+  if (!user) return;
 
-    const user = res.user;
-    STATE.setUser(user);
+  const avatarUrl = UI.getAvatar(user);
+  const avatarPreview = document.getElementById('profAvatarPreview');
+  const cardName = document.getElementById('profCardName');
+  const cardEmail = document.getElementById('profCardEmail');
+  const cardRole = document.getElementById('profCardRoleBadge');
+  const cardJob = document.getElementById('profCardJobTitle');
+  const cardJoined = document.getElementById('profCardJoinedDate');
 
-    // 2. Fetch user stats (projects, assigned tasks, completed tasks)
-    let stats = { projects: 0, assignedTasks: 0, completedTasks: 0 };
-    try {
-      const statsRes = await API.get(`/users/${user._id}`);
-      if (statsRes.success && statsRes.stats) {
-        stats = statsRes.stats;
-      }
-    } catch (e) {
-      console.warn('Could not fetch user stats:', e.message);
-    }
+  if (avatarPreview) avatarPreview.src = avatarUrl;
+  if (cardName) cardName.textContent = user.name || 'User';
+  if (cardEmail) cardEmail.textContent = user.email || '';
+  if (cardRole) cardRole.textContent = (user.role || 'Member').toUpperCase();
+  if (cardJob) cardJob.textContent = user.jobTitle || 'Team Member';
+  if (cardJoined) {
+    cardJoined.textContent = user.createdAt
+      ? `Member since ${UI.formatDate(user.createdAt)}`
+      : 'Active Member';
+  }
 
-    // 3. Populate Hero Profile Card
-    const avatarUrl = UI.getAvatar(user);
-    const avatarPreview = document.getElementById('profAvatarPreview');
-    const cardName = document.getElementById('profCardName');
-    const cardEmail = document.getElementById('profCardEmail');
-    const cardRole = document.getElementById('profCardRoleBadge');
-    const cardJob = document.getElementById('profCardJobTitle');
-    const cardJoined = document.getElementById('profCardJoinedDate');
+  if (stats) {
     const pCount = document.getElementById('profCardProjectsCount');
     const tCount = document.getElementById('profCardTasksCount');
     const cCount = document.getElementById('profCardCompletedTasksCount');
+    if (pCount) pCount.textContent = stats.projects !== undefined ? stats.projects : 0;
+    if (tCount) tCount.textContent = stats.assignedTasks !== undefined ? stats.assignedTasks : 0;
+    if (cCount) cCount.textContent = stats.completedTasks !== undefined ? stats.completedTasks : 0;
+  }
 
-    if (avatarPreview) avatarPreview.src = avatarUrl;
-    if (cardName) cardName.textContent = user.name || 'User';
-    if (cardEmail) cardEmail.textContent = user.email || '';
-    if (cardRole) cardRole.textContent = (user.role || 'Member').toUpperCase();
-    if (cardJob) cardJob.textContent = user.jobTitle || 'Team Member';
-    if (cardJoined) cardJoined.textContent = `Member since ${UI.formatDate(user.createdAt)}`;
-    if (pCount) pCount.textContent = stats.projects;
-    if (tCount) tCount.textContent = stats.assignedTasks;
-    if (cCount) cCount.textContent = stats.completedTasks;
+  // Populate Personal Details Form
+  const pName = document.getElementById('profName');
+  const pEmail = document.getElementById('profEmail');
+  const pRole = document.getElementById('profRoleSelect');
+  const pJobTitle = document.getElementById('profJobTitle');
+  const pAvatar = document.getElementById('profAvatarUrl');
+  const pBio = document.getElementById('profBio');
 
-    // 4. Populate Personal Details Form
-    const pName = document.getElementById('profName');
-    const pEmail = document.getElementById('profEmail');
-    const pRole = document.getElementById('profRoleSelect');
-    const pJobTitle = document.getElementById('profJobTitle');
-    const pAvatar = document.getElementById('profAvatarUrl');
-    const pBio = document.getElementById('profBio');
+  if (pName) pName.value = user.name || '';
+  if (pEmail) pEmail.value = user.email || '';
+  if (pRole) pRole.value = user.role || 'member';
+  if (pJobTitle) pJobTitle.value = user.jobTitle || '';
+  if (pAvatar) pAvatar.value = user.avatar || '';
+  if (pBio) pBio.value = user.bio || '';
 
-    if (pName) pName.value = user.name || '';
-    if (pEmail) pEmail.value = user.email || '';
-    if (pRole) pRole.value = user.role || 'member';
-    if (pJobTitle) pJobTitle.value = user.jobTitle || '';
-    if (pAvatar) pAvatar.value = user.avatar || '';
-    if (pBio) pBio.value = user.bio || '';
+  // Also sync sidebar mini-profile
+  renderCurrentUserInUI();
+}
 
-    // Also update sidebar mini-profile
-    renderCurrentUserInUI();
+async function loadProfileView() {
+  // Step 1: Immediately render existing cached user from STATE/localStorage with ZERO latency
+  let user = STATE.getUser();
+  if (user) {
+    populateProfileUI(user);
+  }
+
+  // Step 2: Fetch fresh data and stats from MongoDB in parallel
+  try {
+    const res = await API.get('/auth/me');
+    if (res && res.success && res.user) {
+      user = res.user;
+      STATE.setUser(user);
+      populateProfileUI(user);
+    }
+
+    if (user && user._id) {
+      try {
+        const statsRes = await API.get(`/users/${user._id}`);
+        if (statsRes && statsRes.success && statsRes.stats) {
+          populateProfileUI(user, statsRes.stats);
+        }
+      } catch (e) {
+        console.warn('Could not fetch user stats:', e.message);
+      }
+    }
   } catch (error) {
-    console.error('Failed to load profile view:', error.message);
-    UI.showToast(error.message, 'error', 'Profile Load Error');
+    console.error('Failed to refresh profile from server:', error.message);
   }
 }
 
@@ -70,7 +86,7 @@ function selectAvatarPreset(url) {
   const avatarPreview = document.getElementById('profAvatarPreview');
   if (avatarInput) avatarInput.value = url;
   if (avatarPreview) avatarPreview.src = url;
-  UI.showToast('Avatar selected! Click "Save Profile Changes" to confirm.', 'info');
+  UI.showToast('Avatar selected! Click "Save Profile Changes" to save to MongoDB.', 'info');
 }
 
 function previewAvatar(url) {
@@ -89,8 +105,8 @@ async function handleProfileSubmit(event) {
   const role = document.getElementById('profRoleSelect').value;
   const btn = document.getElementById('btnSaveProfile');
 
-  if (!name) {
-    UI.showToast('Please provide your full name', 'warning');
+  if (!name || name.length < 2) {
+    UI.showToast('Please provide your valid full name (at least 2 characters)', 'warning', 'Validation Error');
     return;
   }
 
@@ -108,13 +124,15 @@ async function handleProfileSubmit(event) {
       role,
     });
 
-    STATE.setUser(res.user);
+    if (res && res.success && res.user) {
+      STATE.setUser(res.user);
 
-    // Update Hero card and UI
-    loadProfileView();
-    renderCurrentUserInUI();
+      // Re-populate Hero card and Form immediately
+      populateProfileUI(res.user);
+      renderCurrentUserInUI();
 
-    UI.showToast('Profile changes saved successfully to MongoDB!', 'success');
+      UI.showToast('Profile changes saved successfully to MongoDB!', 'success');
+    }
   } catch (error) {
     UI.showToast(error.message, 'error', 'Profile Update Failed');
   } finally {
@@ -150,14 +168,16 @@ async function handlePasswordSubmit(event) {
   try {
     if (btn) {
       btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Updating...';
+      btn.innerHTML = '<span class="spinner"></span> Updating Password...';
     }
 
     const res = await API.put('/auth/password', { currentPassword, newPassword });
-    API.setToken(res.token);
+    if (res && res.token) {
+      API.setToken(res.token);
+    }
 
     document.getElementById('passwordForm').reset();
-    UI.showToast('Password updated successfully and stored securely!', 'success');
+    UI.showToast('Password updated successfully and stored securely in MongoDB!', 'success');
   } catch (error) {
     UI.showToast(error.message, 'error', 'Password Change Failed');
   } finally {
@@ -168,6 +188,7 @@ async function handlePasswordSubmit(event) {
   }
 }
 
+window.populateProfileUI = populateProfileUI;
 window.loadProfileView = loadProfileView;
 window.selectAvatarPreset = selectAvatarPreset;
 window.previewAvatar = previewAvatar;

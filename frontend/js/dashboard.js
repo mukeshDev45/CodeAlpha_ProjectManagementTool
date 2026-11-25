@@ -1,17 +1,24 @@
 // ProjectFlow Dashboard Controller
 
 async function loadDashboardData() {
+  // Sync welcome heading immediately with ZERO latency
+  const currentUser = STATE.getUser();
+  if (currentUser) {
+    const dHeading = document.getElementById('dashWelcomeHeading');
+    if (dHeading) dHeading.textContent = `Welcome back, ${currentUser.name}!`;
+  }
+
   try {
     const res = await API.get('/dashboard/stats');
     if (!res.success) return;
 
     const { stats, recentProjects, recentActivities, upcomingTasks } = res;
 
-    // Welcome heading dynamically synced to active user
-    const currentUser = STATE.getUser();
-    if (currentUser) {
+    // Re-verify welcome heading in case user object was refreshed
+    const activeUser = STATE.getUser();
+    if (activeUser) {
       const dHeading = document.getElementById('dashWelcomeHeading');
-      if (dHeading) dHeading.textContent = `Welcome back, ${currentUser.name}!`;
+      if (dHeading) dHeading.textContent = `Welcome back, ${activeUser.name}!`;
     }
 
     // Render Stats Badges

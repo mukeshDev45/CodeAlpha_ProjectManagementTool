@@ -13,7 +13,13 @@ const STATE = {
   setUser(user) {
     this.currentUser = user;
     if (user) {
+      if (user.name === 'Alex Johnson' || user.name === 'Alex') {
+        user.name = 'Mukesh Prajapati';
+      }
       localStorage.setItem(CONFIG.USER_KEY, JSON.stringify(user));
+      if (typeof renderCurrentUserInUI === 'function') {
+        renderCurrentUserInUI();
+      }
     } else {
       localStorage.removeItem(CONFIG.USER_KEY);
     }
@@ -25,8 +31,8 @@ const STATE = {
       if (stored) {
         try {
           this.currentUser = JSON.parse(stored);
-          if (this.currentUser && this.currentUser.name === 'Alex Johnson') {
-            this.currentUser.name = 'Mukesh';
+          if (this.currentUser && (this.currentUser.name === 'Alex Johnson' || this.currentUser.name === 'Alex')) {
+            this.currentUser.name = 'Mukesh Prajapati';
             localStorage.setItem(CONFIG.USER_KEY, JSON.stringify(this.currentUser));
           }
         } catch (e) {

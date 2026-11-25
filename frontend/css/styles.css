@@ -1434,6 +1434,49 @@ textarea.form-control {
   border-color: #232d42;
 }
 
+[data-theme="dark"] .audit-table th {
+  background: #0f172a;
+  color: #94a3b8;
+  border-bottom-color: #232d42;
+}
+
+[data-theme="dark"] .audit-table td {
+  border-bottom-color: #1e293b;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .calendar-day-cell.other-month {
+  background: #0b0f19;
+  color: #475569;
+}
+
+[data-theme="dark"] .calendar-day-cell.today {
+  border: 2px solid var(--primary);
+  background: #1e1b4b;
+}
+
+[data-theme="dark"] .notif-dropdown {
+  background: #151d30;
+  border-color: #232d42;
+}
+
+[data-theme="dark"] .notif-item {
+  border-bottom-color: #1e293b;
+}
+
+[data-theme="dark"] .notif-item.unread {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .global-search-dropdown {
+  background: #151d30;
+  border-color: #232d42;
+}
+
+[data-theme="dark"] .search-result-item:hover {
+  background: #1e293b;
+}
+
 /* Theme Toggle Button */
 .theme-toggle-btn {
   background: transparent;
@@ -1808,4 +1851,75 @@ textarea.form-control {
   padding: 12px 14px;
   border-bottom: 1px solid var(--border-light);
   color: var(--text-main);
+}
+
+/* Topbar User Button */
+.topbar-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-full);
+  padding: 4px 12px 4px 4px;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.topbar-user-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.topbar-user-btn .avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 1px solid var(--primary-border);
+}
+
+.topbar-user-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Skeleton Loading Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--border-light) 25%, var(--bg-main) 50%, var(--border-light) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite ease-in-out;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-text {
+  height: 14px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.skeleton-card {
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }

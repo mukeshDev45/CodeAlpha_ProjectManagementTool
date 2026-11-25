@@ -64,7 +64,7 @@ const autoSeed = async () => {
       },
     ]);
 
-    const [alex, sarah, marcus, priya, david] = users;
+    const [mukesh, sarah, marcus, priya, david] = users;
 
     // 2. Demo projects
     const inTwoWeeks = new Date(Date.now() + 14 * 86400000);
@@ -74,9 +74,9 @@ const autoSeed = async () => {
     const project1 = await Project.create({
       name: 'ProjectFlow SaaS Platform',
       description: 'Collaborative real-time project management and Kanban task tracking system for modern agile engineering teams.',
-      owner: alex._id,
+      owner: mukesh._id,
       members: [
-        { user: alex._id, role: 'owner', joinedAt: new Date() },
+        { user: mukesh._id, role: 'owner', joinedAt: new Date() },
         { user: sarah._id, role: 'admin', joinedAt: new Date() },
         { user: marcus._id, role: 'member', joinedAt: new Date() },
         { user: priya._id, role: 'member', joinedAt: new Date() },
@@ -95,7 +95,7 @@ const autoSeed = async () => {
       owner: marcus._id,
       members: [
         { user: marcus._id, role: 'owner', joinedAt: new Date() },
-        { user: alex._id, role: 'admin', joinedAt: new Date() },
+        { user: mukesh._id, role: 'admin', joinedAt: new Date() },
         { user: david._id, role: 'member', joinedAt: new Date() },
       ],
       status: 'Active',
@@ -112,7 +112,7 @@ const autoSeed = async () => {
       members: [
         { user: priya._id, role: 'owner', joinedAt: new Date() },
         { user: sarah._id, role: 'admin', joinedAt: new Date() },
-        { user: alex._id, role: 'member', joinedAt: new Date() },
+        { user: mukesh._id, role: 'member', joinedAt: new Date() },
       ],
       status: 'Planning',
       priority: 'High',
@@ -130,7 +130,7 @@ const autoSeed = async () => {
         status: 'To Do',
         priority: 'High',
         assignedTo: marcus._id,
-        createdBy: alex._id,
+        createdBy: mukesh._id,
         dueDate: new Date(Date.now() + 5 * 86400000),
         order: 0,
         tags: ['Security', 'OAuth', 'Backend'],
@@ -142,7 +142,7 @@ const autoSeed = async () => {
         status: 'To Do',
         priority: 'Medium',
         assignedTo: david._id,
-        createdBy: alex._id,
+        createdBy: mukesh._id,
         dueDate: new Date(Date.now() + 7 * 86400000),
         order: 1,
         tags: ['Testing', 'QA'],
@@ -154,7 +154,7 @@ const autoSeed = async () => {
         status: 'In Progress',
         priority: 'High',
         assignedTo: sarah._id,
-        createdBy: alex._id,
+        createdBy: mukesh._id,
         dueDate: new Date(Date.now() + 3 * 86400000),
         order: 0,
         tags: ['WebSocket', 'Frontend', 'UI'],
@@ -166,7 +166,7 @@ const autoSeed = async () => {
         status: 'In Progress',
         priority: 'Medium',
         assignedTo: marcus._id,
-        createdBy: alex._id,
+        createdBy: mukesh._id,
         dueDate: new Date(Date.now() + 4 * 86400000),
         order: 1,
         tags: ['MongoDB', 'Performance'],
@@ -190,7 +190,7 @@ const autoSeed = async () => {
         status: 'Completed',
         priority: 'High',
         assignedTo: marcus._id,
-        createdBy: alex._id,
+        createdBy: mukesh._id,
         dueDate: new Date(Date.now() - 2 * 86400000),
         order: 0,
         tags: ['Backend', 'Security'],
@@ -202,7 +202,7 @@ const autoSeed = async () => {
         status: 'Completed',
         priority: 'Medium',
         assignedTo: sarah._id,
-        createdBy: alex._id,
+        createdBy: mukesh._id,
         dueDate: new Date(Date.now() - 4 * 86400000),
         order: 1,
         tags: ['Frontend', 'Responsive'],
@@ -229,7 +229,7 @@ const autoSeed = async () => {
         project: project2._id,
         status: 'Completed',
         priority: 'Medium',
-        assignedTo: alex._id,
+        assignedTo: mukesh._id,
         createdBy: marcus._id,
         dueDate: new Date(Date.now() - 1 * 86400000),
         order: 0,
@@ -254,7 +254,7 @@ const autoSeed = async () => {
       },
       {
         task: notifTask._id,
-        user: alex._id,
+        user: mukesh._id,
         content: 'Please make sure toast notifications automatically dismiss after 4 seconds.',
       },
       {
@@ -268,7 +268,7 @@ const autoSeed = async () => {
     await Activity.create([
       {
         project: project1._id,
-        user: alex._id,
+        user: mukesh._id,
         action: 'created_project',
         details: 'Created project "ProjectFlow SaaS Platform"',
         target: project1.name,
@@ -302,7 +302,7 @@ const autoSeed = async () => {
 
     await Notification.create([
       {
-        recipient: alex._id,
+        recipient: mukesh._id,
         sender: priya._id,
         type: 'new_comment',
         title: 'New Comment on Task',
@@ -312,7 +312,7 @@ const autoSeed = async () => {
         isRead: false,
       },
       {
-        recipient: alex._id,
+        recipient: mukesh._id,
         sender: sarah._id,
         type: 'task_status_changed',
         title: 'Task Status Updated',
@@ -322,7 +322,7 @@ const autoSeed = async () => {
         isRead: false,
       },
       {
-        recipient: alex._id,
+        recipient: mukesh._id,
         sender: marcus._id,
         type: 'task_assigned',
         title: 'Task Assigned',

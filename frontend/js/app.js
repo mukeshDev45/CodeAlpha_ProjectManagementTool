@@ -32,6 +32,13 @@ function navigateTo(viewName) {
     activeSection.classList.add('active');
   }
 
+  // Scroll main content area to top on view change
+  const contentArea = document.querySelector('.content-area');
+  if (contentArea) {
+    contentArea.scrollTop = 0;
+  }
+  window.scrollTo(0, 0);
+
   // Update Top Navbar Title & Breadcrumbs
   const titleEl = document.getElementById('navbarPageTitle');
   const breadcrumbEl = document.getElementById('navbarPageBreadcrumb');

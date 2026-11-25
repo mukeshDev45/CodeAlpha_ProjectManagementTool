@@ -272,7 +272,16 @@ function renderProjectMembersList(members) {
             </div>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="badge-tag" style="text-transform: capitalize;">${m.role}</span>
+            ${
+              isOwner && !isThisOwner
+                ? `<select class="form-control" style="font-size:11px; padding:2px 8px; height:28px; width:auto; border-radius:4px;" onchange="handleChangeMemberRole('${u._id}', this.value)">
+                    <option value="admin" ${m.role === 'admin' ? 'selected' : ''}>Admin</option>
+                    <option value="lead" ${m.role === 'lead' ? 'selected' : ''}>Lead</option>
+                    <option value="member" ${m.role === 'member' ? 'selected' : ''}>Member</option>
+                    <option value="viewer" ${m.role === 'viewer' ? 'selected' : ''}>Viewer</option>
+                   </select>`
+                : `<span class="badge-tag" style="text-transform: capitalize;">${m.role}</span>`
+            }
             ${
               !isThisOwner && isOwner
                 ? `<button class="btn btn-ghost btn-sm" style="color: var(--danger); padding: 4px;" onclick="handleRemoveMemberFromProject('${u._id}')">Remove</button>`
@@ -394,6 +403,19 @@ async function loadProjectInvitations(projectId) {
   }
 }
 
+async function handleChangeMemberRole(userId, newRole) {
+  if (!STATE.currentProject) return;
+  try {
+    const res = await API.patch(`/projects/${STATE.currentProject._id}/members/${userId}/role`, { role: newRole });
+    STATE.currentProject = res.project;
+    UI.showToast(`Team member role updated to ${newRole}!`, 'success', 'Role Updated');
+    renderProjectMembersList(res.project.members || []);
+    updateBoardHeaderUI(res.project);
+  } catch (err) {
+    UI.showToast(err.message, 'error', 'Role Update Failed');
+  }
+}
+
 window.loadProjects = loadProjects;
 window.renderProjectsGrid = renderProjectsGrid;
 window.handleProjectsFilter = handleProjectsFilter;
@@ -405,5 +427,6 @@ window.confirmDeleteCurrentProject = confirmDeleteCurrentProject;
 window.openManageTeamModal = openManageTeamModal;
 window.handleAddMemberToProject = handleAddMemberToProject;
 window.handleRemoveMemberFromProject = handleRemoveMemberFromProject;
+window.handleChangeMemberRole = handleChangeMemberRole;
 window.handleSendProjectInvitation = handleSendProjectInvitation;
 window.loadProjectInvitations = loadProjectInvitations;

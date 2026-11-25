@@ -143,6 +143,12 @@ function renderCurrentUserInUI() {
   if (sName) sName.textContent = user.name;
   if (sRole) sRole.textContent = user.jobTitle || user.role;
 
+  // Topbar User Avatar & Name Button
+  const tbAvatar = document.getElementById('topbarUserAvatar');
+  const tbName = document.getElementById('topbarUserName');
+  if (tbAvatar) tbAvatar.src = avatar;
+  if (tbName) tbName.textContent = user.name;
+
   // Comment avatar in task modal
   const cAvatar = document.getElementById('tdCurrentUserCommentAvatar');
   if (cAvatar) cAvatar.src = avatar;

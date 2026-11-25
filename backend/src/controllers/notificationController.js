@@ -1,10 +1,45 @@
 const Notification = require('../models/Notification');
+const Task = require('../models/Task');
 
 // @desc    Get user notifications
 // @route   GET /api/notifications
 // @access  Private
 const getNotifications = async (req, res, next) => {
   try {
+    // Check for approaching deadlines or overdue tasks assigned to this user
+    try {
+      const alertTasks = await Task.find({
+        assignedTo: req.user._id,
+        status: { $ne: 'Completed' },
+        dueDate: { $ne: null, $lte: new Date(Date.now() + 24 * 60 * 60 * 1000) },
+      }).populate('project', 'name');
+
+      for (const t of alertTasks) {
+        const existingNotice = await Notification.findOne({
+          recipient: req.user._id,
+          relatedTask: t._id,
+          type: 'deadline_approaching',
+          createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+        });
+
+        if (!existingNotice) {
+          const isOverdue = new Date(t.dueDate) < new Date();
+          await Notification.create({
+            recipient: req.user._id,
+            type: 'deadline_approaching',
+            title: isOverdue ? '⚠️ Task Overdue Alert' : '⏰ Due Date Reminder',
+            message: isOverdue
+              ? `Task "${t.title}" is overdue in ${t.project ? t.project.name : 'project'}!`
+              : `Task "${t.title}" is due within 24h in ${t.project ? t.project.name : 'project'}!`,
+            relatedProject: t.project?._id || t.project,
+            relatedTask: t._id,
+          });
+        }
+      }
+    } catch (reminderErr) {
+      console.warn('Due-date reminder check warning:', reminderErr.message);
+    }
+
     const notifications = await Notification.find({ recipient: req.user._id })
       .populate('sender', 'name email avatar')
       .populate('relatedProject', 'name color')

@@ -774,6 +774,62 @@ const getProjectInvitations = async (req, res, next) => {
   }
 };
 
+const updateMemberRole = async (req, res, next) => {
+  try {
+    const { id, userId } = req.params;
+    const { role } = req.body;
+    const validRoles = ['admin', 'lead', 'member', 'viewer'];
+
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ success: false, message: 'Invalid role. Must be admin, lead, member, or viewer' });
+    }
+
+    const project = await Project.findById(id);
+    if (!project) {
+      return res.status(404).json({ success: false, message: 'Project not found' });
+    }
+
+    const currentUserId = req.user._id.toString();
+    const isOwner = project.owner.toString() === currentUserId;
+    const currentMember = project.members.find((m) => m.user.toString() === currentUserId);
+    const isAdmin = currentMember && currentMember.role === 'admin';
+
+    if (!isOwner && !isAdmin && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Permission denied: Only Owner or Admin can change member roles' });
+    }
+
+    const memberToUpdate = project.members.find((m) => m.user.toString() === userId.toString());
+    if (!memberToUpdate) {
+      return res.status(404).json({ success: false, message: 'Member not found in this project' });
+    }
+
+    memberToUpdate.role = role;
+    await project.save();
+
+    const io = req.app.get('io');
+    await logActivity({
+      project: project._id,
+      user: req.user._id,
+      action: 'member_updated',
+      details: `Updated role of member to ${role}`,
+      target: role,
+      io,
+    });
+
+    const updated = await Project.findById(project._id)
+      .populate('owner', 'name email avatar jobTitle')
+      .populate('members.user', 'name email avatar jobTitle');
+
+    res.json({
+      success: true,
+      message: `Member role updated to ${role}`,
+      project: updated,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createProject,
   getProjects,
@@ -782,6 +838,7 @@ module.exports = {
   deleteProject,
   addMember,
   removeMember,
+  updateMemberRole,
   transferOwner,
   getProjectActivities,
   exportProjectCSV,

@@ -21,6 +21,7 @@ const { protect } = require('../middleware/auth');
 
 router.use(protect);
 
+router.get('/my', getMyTasks);
 router.get('/my-tasks', getMyTasks);
 
 router.route('/:id')
@@ -28,7 +29,9 @@ router.route('/:id')
   .put(updateTask)
   .delete(deleteTask);
 
-router.patch('/:id/status', updateTaskStatus);
+router.route('/:id/status')
+  .patch(updateTaskStatus)
+  .put(updateTaskStatus);
 router.get('/:id/activities', getTaskActivities);
 
 // Attachments

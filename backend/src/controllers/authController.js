@@ -148,7 +148,7 @@ const updateProfile = async (req, res, next) => {
     if (name) user.name = name.trim();
     if (jobTitle !== undefined) user.jobTitle = jobTitle.trim();
     if (bio !== undefined) user.bio = bio.trim();
-    if (avatar) user.avatar = avatar.trim();
+    if (avatar !== undefined) user.avatar = avatar.trim();
     if (role && ['admin', 'manager', 'developer', 'designer', 'member'].includes(role)) {
       user.role = role;
     }
@@ -166,6 +166,7 @@ const updateProfile = async (req, res, next) => {
         jobTitle: updatedUser.jobTitle,
         bio: updatedUser.bio,
         avatar: updatedUser.avatar,
+        createdAt: updatedUser.createdAt,
         updatedAt: updatedUser.updatedAt,
       },
     });

@@ -36,11 +36,16 @@ const API = {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      let data = {};
+      try {
+        data = await response.json();
+      } catch (e) {
+        data = { message: response.statusText || `HTTP ${response.status}` };
+      }
 
       if (!response.ok) {
         // If token expired or unauthorized
-        if (response.status === 401) {
+        if (response.status === 401 && endpoint !== '/auth/login' && endpoint !== '/auth/password') {
           if (token) {
             this.setToken(null);
             localStorage.removeItem(CONFIG.USER_KEY);

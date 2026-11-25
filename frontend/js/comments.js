@@ -148,32 +148,36 @@ async function editCommentPrompt(commentId) {
 }
 
 async function deleteComment(commentId) {
-  if (!confirm('Are you sure you want to delete this comment?')) return;
+  UI.confirm(
+    'Delete Comment?',
+    'Are you sure you want to permanently delete this comment?',
+    async () => {
+      try {
+        await API.delete(`/comments/${commentId}`);
+        const el = document.getElementById(`comment-${commentId}`);
+        if (el) el.remove();
 
-  try {
-    await API.delete(`/comments/${commentId}`);
-    const el = document.getElementById(`comment-${commentId}`);
-    if (el) el.remove();
+        if (STATE.activeTask) {
+          if (STATE.activeTask.comments) {
+            STATE.activeTask.comments = STATE.activeTask.comments.filter((c) => c._id !== commentId);
+          }
+          STATE.activeTask.commentCount = Math.max(0, (STATE.activeTask.commentCount || 1) - 1);
+          const countEl = document.getElementById('tdCommentCount');
+          if (countEl) countEl.textContent = STATE.activeTask.commentCount;
 
-    if (STATE.activeTask) {
-      if (STATE.activeTask.comments) {
-        STATE.activeTask.comments = STATE.activeTask.comments.filter((c) => c._id !== commentId);
-      }
-      STATE.activeTask.commentCount = Math.max(0, (STATE.activeTask.commentCount || 1) - 1);
-      const countEl = document.getElementById('tdCommentCount');
-      if (countEl) countEl.textContent = STATE.activeTask.commentCount;
+          const task = STATE.currentTasks.find((t) => t._id === STATE.activeTask._id);
+          if (task && task.commentCount > 0) {
+            task.commentCount--;
+            renderKanbanCards();
+          }
+        }
 
-      const task = STATE.currentTasks.find((t) => t._id === STATE.activeTask._id);
-      if (task && task.commentCount > 0) {
-        task.commentCount--;
-        renderKanbanCards();
+        UI.showToast('Comment deleted', 'info');
+      } catch (error) {
+        UI.showToast(error.message, 'error');
       }
     }
-
-    UI.showToast('Comment deleted', 'info');
-  } catch (error) {
-    UI.showToast(error.message, 'error');
-  }
+  );
 }
 
 window.renderCommentsList = renderCommentsList;

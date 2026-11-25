@@ -136,8 +136,13 @@ const getProjectTasks = async (req, res, next) => {
       filter.assignedTo = assignedTo === 'unassigned' ? null : assignedTo;
     }
 
-    if (search) {
-      filter.title = { $regex: search, $options: 'i' };
+    if (search && search.trim()) {
+      const q = search.trim();
+      filter.$or = [
+        { title: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } },
+        { tags: { $regex: q, $options: 'i' } },
+      ];
     }
 
     const tasks = await Task.find(filter)
@@ -466,7 +471,7 @@ const deleteTask = async (req, res, next) => {
 // @access  Private
 const getMyTasks = async (req, res, next) => {
   try {
-    const { status, priority } = req.query;
+    const { status, priority, search, project } = req.query;
     let query = { assignedTo: req.user._id };
 
     if (status && status !== 'all') {
@@ -475,6 +480,19 @@ const getMyTasks = async (req, res, next) => {
 
     if (priority && priority !== 'all') {
       query.priority = priority;
+    }
+
+    if (project && project !== 'all') {
+      query.project = project;
+    }
+
+    if (search && search.trim()) {
+      const q = search.trim();
+      query.$or = [
+        { title: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } },
+        { tags: { $regex: q, $options: 'i' } },
+      ];
     }
 
     const tasks = await Task.find(query)

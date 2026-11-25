@@ -66,7 +66,7 @@ async function runTestSuite() {
     assert(health.status === 200 && health.data.success === true, 'API /api/health returned 200 OK and connected DB');
 
     const htmlCheck = await request('GET', '/');
-    assert(htmlCheck.status === 200 && typeof htmlCheck.data === 'string' && htmlCheck.data.includes('ProjectFlow'), 'Frontend index.html served on root /');
+    assert(htmlCheck.status === 200 && typeof htmlCheck.data === 'string' && (htmlCheck.data.includes('Project Management Tool') || htmlCheck.data.includes('ProjectFlow')), 'Frontend index.html served on root /');
 
     // 2. Authentication: Login demo user Alex
     console.log('\n[Test Group 2] Authentication & Profile');

@@ -26,7 +26,7 @@ function populateCalendarProjectDropdown() {
 
 async function fetchCalendarTasks() {
   try {
-    const res = await API.get('/tasks/my');
+    const res = await API.get('/tasks/my-tasks');
     CALENDAR_STATE.tasks = res.tasks || [];
   } catch (error) {
     console.error('Failed to load tasks for calendar:', error);

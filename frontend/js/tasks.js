@@ -325,6 +325,7 @@ async function saveTaskInfoEdit() {
     document.getElementById('tdTitle').textContent = res.task.title;
     document.getElementById('tdDescription').textContent = res.task.description || 'No description provided.';
     toggleTaskEditMode(false);
+    loadTaskActivities(res.task._id);
 
     UI.showToast('Task title and description saved!', 'success');
   } catch (error) {
@@ -366,10 +367,23 @@ async function loadMyTasks() {
     const counter = document.getElementById('sidebarMyTasksCount');
     if (counter) counter.textContent = myTasksCache.length;
 
+    populateMyTasksProjectFilter();
     renderMyTasksView();
   } catch (error) {
     console.error('Failed to load my tasks:', error.message);
   }
+}
+
+function populateMyTasksProjectFilter() {
+  const sel = document.getElementById('myTasksProjectFilter');
+  if (!sel) return;
+  const currentVal = sel.value || 'all';
+  const projects = STATE.projects || [];
+  let html = '<option value="all">All Projects</option>';
+  projects.forEach((p) => {
+    html += `<option value="${p._id}" ${currentVal === p._id ? 'selected' : ''}>${UI.escapeHTML(p.name)}</option>`;
+  });
+  sel.innerHTML = html;
 }
 
 function renderMyTasksView() {
@@ -377,6 +391,7 @@ function renderMyTasksView() {
   if (!container) return;
 
   const search = (document.getElementById('myTasksSearchInput')?.value || '').toLowerCase().trim();
+  const projectFilter = document.getElementById('myTasksProjectFilter')?.value || 'all';
   const statusFilter = document.getElementById('myTasksStatusFilter')?.value || 'all';
   const priorityFilter = document.getElementById('myTasksPriorityFilter')?.value || 'all';
   const sortBy = document.getElementById('myTasksSortBy')?.value || 'dueDate';
@@ -388,10 +403,14 @@ function renderMyTasksView() {
       (t.description && t.description.toLowerCase().includes(search)) ||
       (t.project && t.project.name && t.project.name.toLowerCase().includes(search));
 
+    const matchProject =
+      projectFilter === 'all' ||
+      (t.project && (t.project._id === projectFilter || t.project === projectFilter));
+
     const matchStatus = statusFilter === 'all' || t.status === statusFilter;
     const matchPriority = priorityFilter === 'all' || t.priority === priorityFilter;
 
-    return matchSearch && matchStatus && matchPriority;
+    return matchSearch && matchProject && matchStatus && matchPriority;
   });
 
   // Sorting
@@ -461,11 +480,13 @@ function renderMyTasksView() {
 
 function resetMyTasksFilters() {
   const sInput = document.getElementById('myTasksSearchInput');
+  const pFilter = document.getElementById('myTasksProjectFilter');
   const stFilter = document.getElementById('myTasksStatusFilter');
   const prFilter = document.getElementById('myTasksPriorityFilter');
   const sortSel = document.getElementById('myTasksSortBy');
 
   if (sInput) sInput.value = '';
+  if (pFilter) pFilter.value = 'all';
   if (stFilter) stFilter.value = 'all';
   if (prFilter) prFilter.value = 'all';
   if (sortSel) sortSel.value = 'dueDate';
@@ -623,17 +644,23 @@ function handleAttachmentDrop(event) {
 async function confirmDeleteAttachment(attachmentId) {
   if (!STATE.activeTask) return;
   const taskId = STATE.activeTask._id;
-  try {
-    const res = await API.delete(`/tasks/${taskId}/attachments/${attachmentId}`);
-    STATE.activeTask = res.task;
-    STATE.updateTaskInState(res.task);
-    renderTaskAttachments(res.task.attachments || []);
-    renderKanbanCards();
-    loadTaskActivities(taskId);
-    UI.showToast('Attachment removed', 'info');
-  } catch (error) {
-    UI.showToast(error.message, 'error', 'Delete Failed');
-  }
+  UI.confirm(
+    'Remove File Attachment?',
+    'Are you sure you want to permanently delete this file attachment?',
+    async () => {
+      try {
+        const res = await API.delete(`/tasks/${taskId}/attachments/${attachmentId}`);
+        STATE.activeTask = res.task;
+        STATE.updateTaskInState(res.task);
+        renderTaskAttachments(res.task.attachments || []);
+        renderKanbanCards();
+        loadTaskActivities(taskId);
+        UI.showToast('Attachment removed', 'info');
+      } catch (error) {
+        UI.showToast(error.message, 'error', 'Delete Failed');
+      }
+    }
+  );
 }
 
 window.updateCreateTaskProjectOptions = updateCreateTaskProjectOptions;

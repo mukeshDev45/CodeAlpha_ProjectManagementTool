@@ -8,6 +8,7 @@ const {
   deleteProject,
   addMember,
   removeMember,
+  updateMemberRole,
   transferOwner,
   getProjectActivities,
   exportProjectCSV,
@@ -36,6 +37,7 @@ router.route('/:id')
 // Member management
 router.post('/:id/members', addMember);
 router.delete('/:id/members/:userId', removeMember);
+router.patch('/:id/members/:userId/role', updateMemberRole);
 router.put('/:id/transfer-owner', transferOwner);
 
 // Invitations & Export

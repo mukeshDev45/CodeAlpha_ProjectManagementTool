@@ -161,6 +161,7 @@ function renderKanbanCards() {
 function renderSingleTaskCard(task) {
   const priorityClass = task.priority ? task.priority.toLowerCase() : 'medium';
   const dueStatus = UI.getDueDateStatus(task.dueDate, task.status);
+  const overdueClass = dueStatus.isOverdue ? 'task-card-overdue' : '';
   const labelsHtml = (task.labels || [])
     .map(l => `<span class="badge-tag" style="background:${l.color || '#4f46e5'}20; color:${l.color || '#4f46e5'}; font-weight:600;">🏷️ ${UI.escapeHTML(l.name)}</span>`)
     .join('');
@@ -173,7 +174,7 @@ function renderSingleTaskCard(task) {
     : '';
 
   return `
-    <div class="task-card" id="task-card-${task._id}" draggable="true" ondragstart="handleDragStart(event, '${task._id}')" ondragend="handleDragEnd(event)" onclick="openTaskDetailsModalById('${task._id}')">
+    <div class="task-card ${overdueClass}" id="task-card-${task._id}" draggable="true" ondragstart="handleDragStart(event, '${task._id}')" ondragend="handleDragEnd(event)" onclick="openTaskDetailsModalById('${task._id}')">
       <div class="task-card-tags">
         <span class="badge-priority ${priorityClass}">${task.priority}</span>
         ${recurringHtml}
@@ -339,11 +340,12 @@ function filterBoardCards() {
   const originalTasks = STATE.currentTasks || [];
 
   const filtered = originalTasks.filter((t) => {
-    // 1. Text search across title, description, and tags
+    // 1. Text search across title, description, tags, and assigned member name
     const matchSearch =
       !search ||
       (t.title && t.title.toLowerCase().includes(search)) ||
       (t.description && t.description.toLowerCase().includes(search)) ||
+      (t.assignedTo && t.assignedTo.name && t.assignedTo.name.toLowerCase().includes(search)) ||
       (t.tags && t.tags.some((tg) => tg.toLowerCase().includes(search)));
 
     // 2. Priority filter

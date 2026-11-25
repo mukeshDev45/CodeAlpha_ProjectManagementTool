@@ -38,11 +38,11 @@
         <!-- LOGIN FORM -->
         <form id="loginForm" class="auth-form active" onsubmit="handleLoginSubmit(event)">
           <div class="form-group">
-            <label class="form-label">Email Address</label>
+            <label class="form-label" for="loginEmail">Email Address</label>
             <input type="email" id="loginEmail" class="form-control" placeholder="name@company.com" required value="mukesh@projectflow.dev">
           </div>
           <div class="form-group">
-            <label class="form-label">Password</label>
+            <label class="form-label" for="loginPassword">Password</label>
             <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required value="password123">
           </div>
           <div style="text-align: right; margin-top: -8px; margin-bottom: 14px;">
@@ -56,20 +56,20 @@
         <!-- REGISTER FORM -->
         <form id="registerForm" class="auth-form" onsubmit="handleRegisterSubmit(event)">
           <div class="form-group">
-            <label class="form-label">Full Name</label>
+            <label class="form-label" for="regName">Full Name</label>
             <input type="text" id="regName" class="form-control" placeholder="e.g. Jordan Lee" required>
           </div>
           <div class="form-group">
-            <label class="form-label">Email Address</label>
+            <label class="form-label" for="regEmail">Email Address</label>
             <input type="email" id="regEmail" class="form-control" placeholder="jordan@company.com" required>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Password (min 6)</label>
+              <label class="form-label" for="regPassword">Password (min 6)</label>
               <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required minlength="6">
             </div>
             <div class="form-group">
-              <label class="form-label">Role</label>
+              <label class="form-label" for="regRole">Role</label>
               <select id="regRole" class="form-control">
                 <option value="developer">Developer</option>
                 <option value="designer">Designer</option>
@@ -80,7 +80,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Job Title</label>
+            <label class="form-label" for="regJobTitle">Job Title</label>
             <input type="text" id="regJobTitle" class="form-control" placeholder="e.g. Frontend Engineer">
           </div>
           <button type="submit" id="btnRegisterSubmit" class="btn btn-primary" style="width: 100%;">
@@ -90,7 +90,10 @@
 
         <!-- ONE-CLICK DEMO ACCOUNTS -->
         <div class="demo-login-box">
-          <div class="demo-title">⚡ Instant Demo Logins (One-Click)</div>
+          <div class="demo-title">⚡ Development &amp; Evaluation Demo Accounts (Testing Only)</div>
+          <div class="demo-subtitle" style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem; text-align: center;">
+            Pre-seeded roles for CodeAlpha evaluation &amp; local feature testing only.
+          </div>
           <div class="demo-buttons">
             <button type="button" class="btn-demo" onclick="quickDemoLogin('mukesh@projectflow.dev')">
               👨‍💼 Mukesh (Lead)
@@ -169,7 +172,7 @@
           <span>Notifications</span>
           <span id="sidebarNotifBadge" class="nav-counter" style="display:none; background: var(--danger);">0</span>
         </button>
-        <button class="nav-item" data-view="profile" onclick="navigateTo('profile')">
+        <button id="sidebarProfileBtn" class="nav-item" data-view="profile" onclick="navigateTo('profile')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           <span>Profile & Settings</span>
         </button>
@@ -261,6 +264,12 @@
               <button class="btn-text" onclick="navigateTo('notifications'); toggleNotifDropdown(false);">View all notifications &rarr;</button>
             </div>
           </div>
+
+          <!-- User Profile Quick Pill -->
+          <button class="topbar-user-btn" onclick="navigateTo('profile')" title="My Profile & Settings">
+            <img id="topbarUserAvatar" class="avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Avatar">
+            <span id="topbarUserName" class="topbar-user-name">Profile</span>
+          </button>
         </div>
       </header>
 
@@ -561,6 +570,9 @@
             </div>
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
               <input type="text" id="myTasksSearchInput" class="form-control" placeholder="🔍 Search tasks..." style="max-width: 180px;" oninput="renderMyTasksView()">
+              <select id="myTasksProjectFilter" class="form-control" style="max-width: 160px;" onchange="renderMyTasksView()">
+                <option value="all">All Projects</option>
+              </select>
               <select id="myTasksStatusFilter" class="form-control" style="max-width: 140px;" onchange="renderMyTasksView()">
                 <option value="all">All Statuses</option>
                 <option value="To Do">To Do</option>
@@ -666,17 +678,17 @@
               <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 20px;">Personal Details</h4>
               <form id="profileForm" onsubmit="handleProfileSubmit(event)">
                 <div class="form-group">
-                  <label class="form-label">Full Name *</label>
+                  <label class="form-label" for="profName">Full Name *</label>
                   <input type="text" id="profName" class="form-control" placeholder="Your full name" required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Email Address (Read-only)</label>
+                  <label class="form-label" for="profEmail">Email Address (Read-only)</label>
                   <input type="email" id="profEmail" class="form-control" disabled style="background:#f1f5f9; cursor: not-allowed;">
                   <small style="font-size: 11px; color: var(--text-light); margin-top: 4px; display: block;">Primary account email cannot be changed for security</small>
                 </div>
                 <div class="form-row">
                   <div class="form-group">
-                    <label class="form-label">Role</label>
+                    <label class="form-label" for="profRoleSelect">Role</label>
                     <select id="profRoleSelect" class="form-control">
                       <option value="member">Member</option>
                       <option value="developer">Developer</option>
@@ -686,14 +698,14 @@
                     </select>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Job Title</label>
+                    <label class="form-label" for="profJobTitle">Job Title</label>
                     <input type="text" id="profJobTitle" class="form-control" placeholder="e.g. Senior Frontend Engineer">
                   </div>
                 </div>
 
                 <!-- Avatar Selection & URL -->
                 <div class="form-group">
-                  <label class="form-label">Profile Picture (Avatar)</label>
+                  <label class="form-label" for="profAvatarUrl">Profile Picture (Avatar)</label>
                   <input type="url" id="profAvatarUrl" class="form-control" placeholder="https://... or choose a preset below" oninput="previewAvatar(this.value)">
                   <div class="avatar-presets-row">
                     <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Presets:</span>
@@ -716,7 +728,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label">Bio / About</label>
+                  <label class="form-label" for="profBio">Bio / About</label>
                   <textarea id="profBio" class="form-control" placeholder="A brief summary about your skills, role, and focus..."></textarea>
                 </div>
                 <button type="submit" id="btnSaveProfile" class="btn btn-primary">
@@ -730,15 +742,15 @@
               <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 20px;">Security & Password</h4>
               <form id="passwordForm" onsubmit="handlePasswordSubmit(event)">
                 <div class="form-group">
-                  <label class="form-label">Current Password *</label>
+                  <label class="form-label" for="currentPass">Current Password *</label>
                   <input type="password" id="currentPass" class="form-control" placeholder="••••••••" required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">New Password * (min 6 characters)</label>
+                  <label class="form-label" for="newPass">New Password * (min 6 characters)</label>
                   <input type="password" id="newPass" class="form-control" placeholder="••••••••" required minlength="6">
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Confirm New Password *</label>
+                  <label class="form-label" for="confirmPass">Confirm New Password *</label>
                   <input type="password" id="confirmPass" class="form-control" placeholder="••••••••" required minlength="6">
                 </div>
                 <button type="submit" id="btnUpdatePassword" class="btn btn-secondary">
@@ -938,21 +950,21 @@
     <div class="modal-container">
       <div class="modal-header">
         <h3>Create New Project</h3>
-        <button class="btn-icon" onclick="closeModal('modalCreateProject')">&times;</button>
+        <button class="btn-icon" aria-label="Close modal" onclick="closeModal('modalCreateProject')">&times;</button>
       </div>
       <form id="createProjectForm" onsubmit="handleCreateProjectSubmit(event)">
         <div class="modal-body">
           <div class="form-group">
-            <label class="form-label">Project Name *</label>
+            <label class="form-label" for="cpName">Project Name *</label>
             <input type="text" id="cpName" class="form-control" placeholder="e.g. Mobile App Redesign" required>
           </div>
           <div class="form-group">
-            <label class="form-label">Description</label>
+            <label class="form-label" for="cpDescription">Description</label>
             <textarea id="cpDescription" class="form-control" placeholder="Describe the objectives and scope..."></textarea>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Category</label>
+              <label class="form-label" for="cpCategory">Category</label>
               <select id="cpCategory" class="form-control">
                 <option value="Web App">Web App</option>
                 <option value="Mobile App">Mobile App</option>
@@ -963,7 +975,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Priority</label>
+              <label class="form-label" for="cpPriority">Priority</label>
               <select id="cpPriority" class="form-control">
                 <option value="Low">Low</option>
                 <option value="Medium" selected>Medium</option>
@@ -973,11 +985,11 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Deadline</label>
+              <label class="form-label" for="cpDeadline">Deadline</label>
               <input type="date" id="cpDeadline" class="form-control">
             </div>
             <div class="form-group">
-              <label class="form-label">Theme Color</label>
+              <label class="form-label" for="cpColor">Theme Color</label>
               <select id="cpColor" class="form-control">
                 <option value="#4f46e5">Indigo</option>
                 <option value="#0ea5e9">Sky Blue</option>
@@ -1002,22 +1014,22 @@
     <div class="modal-container">
       <div class="modal-header">
         <h3>Edit Project Settings</h3>
-        <button class="btn-icon" onclick="closeModal('modalEditProject')">&times;</button>
+        <button class="btn-icon" aria-label="Close modal" onclick="closeModal('modalEditProject')">&times;</button>
       </div>
       <form id="editProjectForm" onsubmit="handleEditProjectSubmit(event)">
         <div class="modal-body">
           <input type="hidden" id="epId">
           <div class="form-group">
-            <label class="form-label">Project Name *</label>
+            <label class="form-label" for="epName">Project Name *</label>
             <input type="text" id="epName" class="form-control" required>
           </div>
           <div class="form-group">
-            <label class="form-label">Description</label>
+            <label class="form-label" for="epDescription">Description</label>
             <textarea id="epDescription" class="form-control"></textarea>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Status</label>
+              <label class="form-label" for="epStatus">Status</label>
               <select id="epStatus" class="form-control">
                 <option value="Active">Active</option>
                 <option value="Planning">Planning</option>
@@ -1027,7 +1039,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Priority</label>
+              <label class="form-label" for="epPriority">Priority</label>
               <select id="epPriority" class="form-control">
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
@@ -1037,11 +1049,11 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Deadline</label>
+              <label class="form-label" for="epDeadline">Deadline</label>
               <input type="date" id="epDeadline" class="form-control">
             </div>
             <div class="form-group">
-              <label class="form-label">Category</label>
+              <label class="form-label" for="epCategory">Category</label>
               <select id="epCategory" class="form-control">
                 <option value="Web App">Web App</option>
                 <option value="Mobile App">Mobile App</option>
@@ -1067,7 +1079,7 @@
     <div class="modal-container">
       <div class="modal-header">
         <h3>Project Team Members</h3>
-        <button class="btn-icon" onclick="closeModal('modalManageTeam')">&times;</button>
+        <button class="btn-icon" aria-label="Close modal" onclick="closeModal('modalManageTeam')">&times;</button>
       </div>
       <div class="modal-body">
         <!-- Add Member Form -->
@@ -1119,27 +1131,27 @@
     <div class="modal-container">
       <div class="modal-header">
         <h3>Create New Task</h3>
-        <button class="btn-icon" onclick="closeModal('modalCreateTask')">&times;</button>
+        <button class="btn-icon" aria-label="Close modal" onclick="closeModal('modalCreateTask')">&times;</button>
       </div>
       <form id="createTaskForm" onsubmit="handleCreateTaskSubmit(event)">
         <div class="modal-body">
           <div class="form-group" id="ctProjectSelectGroup">
-            <label class="form-label">Project *</label>
+            <label class="form-label" for="ctProjectId">Project *</label>
             <select id="ctProjectId" class="form-control" required onchange="populateTaskAssigneeOptions(this.value)">
               <!-- Options populated via JS -->
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Task Title *</label>
+            <label class="form-label" for="ctTitle">Task Title *</label>
             <input type="text" id="ctTitle" class="form-control" placeholder="e.g. Build API Endpoints" required>
           </div>
           <div class="form-group">
-            <label class="form-label">Description</label>
+            <label class="form-label" for="ctDescription">Description</label>
             <textarea id="ctDescription" class="form-control" placeholder="Add task details, checklist, or acceptance criteria..."></textarea>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Initial Column</label>
+              <label class="form-label" for="ctStatus">Initial Column</label>
               <select id="ctStatus" class="form-control">
                 <option value="To Do">To Do</option>
                 <option value="In Progress">In Progress</option>
@@ -1148,7 +1160,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Priority</label>
+              <label class="form-label" for="ctPriority">Priority</label>
               <select id="ctPriority" class="form-control">
                 <option value="Low">Low</option>
                 <option value="Medium" selected>Medium</option>
@@ -1158,19 +1170,19 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Assignee</label>
+              <label class="form-label" for="ctAssignedTo">Assignee</label>
               <select id="ctAssignedTo" class="form-control">
                 <option value="">Unassigned</option>
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Due Date</label>
+              <label class="form-label" for="ctDueDate">Due Date</label>
               <input type="date" id="ctDueDate" class="form-control">
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Recurring Task</label>
+              <label class="form-label" for="ctRecurring">Recurring Task</label>
               <select id="ctRecurring" class="form-control">
                 <option value="none">None (One-time)</option>
                 <option value="daily">Daily</option>
@@ -1179,12 +1191,12 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Labels (comma-separated)</label>
+              <label class="form-label" for="ctLabels">Labels (comma-separated)</label>
               <input type="text" id="ctLabels" class="form-control" placeholder="e.g. Bug, Feature, Urgent">
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Tags (comma-separated)</label>
+            <label class="form-label" for="ctTags">Tags (comma-separated)</label>
             <input type="text" id="ctTags" class="form-control" placeholder="e.g. Backend, Security, UI">
           </div>
         </div>
@@ -1205,7 +1217,7 @@
           <span id="tdStatusBadge" class="badge-tag">To Do</span>
           <span id="tdDueDateBadge" class="due-badge due-normal">📅 No deadline</span>
         </div>
-        <button class="btn-icon" onclick="closeModal('modalTaskDetails')">&times;</button>
+        <button class="btn-icon" aria-label="Close modal" onclick="closeModal('modalTaskDetails')">&times;</button>
       </div>
       <div class="modal-body">
         <div class="task-details-grid">
@@ -1361,7 +1373,7 @@
     <div class="modal-container" style="max-width: 420px;">
       <div class="modal-header">
         <h3 id="confirmModalTitle">Are you sure?</h3>
-        <button class="btn-icon" onclick="closeModal('modalConfirm')">&times;</button>
+        <button class="btn-icon" aria-label="Close modal" onclick="closeModal('modalConfirm')">&times;</button>
       </div>
       <div class="modal-body">
         <p id="confirmModalMessage" style="color: var(--text-muted); font-size: 14px; line-height: 1.5;">This action cannot be undone.</p>
@@ -1378,7 +1390,7 @@
     <div class="modal-container" style="max-width: 440px;">
       <div class="modal-header">
         <h3>Reset Password</h3>
-        <button class="btn-icon" onclick="closeModal('modalForgotPassword')">&times;</button>
+        <button class="btn-icon" aria-label="Close modal" onclick="closeModal('modalForgotPassword')">&times;</button>
       </div>
       <div class="modal-body">
         <div id="forgotRequestArea">
@@ -1387,7 +1399,7 @@
           </p>
           <form onsubmit="handleForgotPasswordSubmit(event)">
             <div class="form-group">
-              <label class="form-label">Email Address</label>
+              <label class="form-label" for="forgotEmailInput">Email Address</label>
               <input type="email" id="forgotEmailInput" class="form-control" placeholder="name@company.com" required>
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">
@@ -1402,7 +1414,7 @@
           </p>
           <form onsubmit="handleResetPasswordSubmit(event)">
             <div class="form-group">
-              <label class="form-label">New Password (min 6 chars)</label>
+              <label class="form-label" for="forgotNewPassword">New Password (min 6 chars)</label>
               <input type="password" id="forgotNewPassword" class="form-control" placeholder="••••••••" required minlength="6">
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">
